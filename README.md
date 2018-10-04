@@ -23,7 +23,7 @@ If you just want to try it out, you can do the following:
 
 ```shell
 git clone https://github.com/ElixirCircuits/spi 
-cd i2c
+cd spi
 mix compile
 iex -S mix
 ```
