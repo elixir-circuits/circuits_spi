@@ -192,9 +192,6 @@ static ERL_NIF_TERM open_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     if (!enif_get_uint(env, argv[4], (unsigned int*) &delay_us))
         return enif_make_badarg(env);
 
-    
-    
-
     int fd = spi_init(devpath, mode, bits_per_word, speed_hz, delay_us, error_str);
 
     if (fd < 0)
