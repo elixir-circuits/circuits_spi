@@ -33,10 +33,10 @@ right C compiler is called. See the `Makefile` for the variables that will need
 to be overridden. At a minimum, you will need to set `CROSSCOMPILE`,
 `ERL_CFLAGS`, and `ERL_EI_LIBDIR`.
 
-`i2c` doesn't load device drivers, so you'll need to make sure that any
-necessary ones for accessing I2C are loaded beforehand. On the Raspberry
-Pi, the [Adafruit Raspberry Pi I2C
-instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c)
+`spi` doesn't load device drivers, so you'll need to make sure that any
+necessary ones for accessing SPI are loaded beforehand. On the Raspberry
+Pi, the [Adafruit Raspberry Pi SPI
+instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-spi)
 may be helpful.
 
 If you're trying to compile on a Raspberry Pi and you get errors indicated that Erlang headers are missing
