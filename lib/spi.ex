@@ -6,31 +6,26 @@ defmodule ElixirCircuits.SPI do
 
   alias ElixirCircuits.SPI.Nif, as: Nif
 
-  # Public API
-
-  @doc """
-  SPI bus options include:
-  * `mode`: This specifies the clock polarity and phase to use. (0)
-  * `bits_per_word`: bits per word on the bus (8)
-  * `speed_hz`: bus speed (1000000)
-  * `delay_us`: delay between transaction (10)
-  """
-
-  # NOTE: for :bits_per_word, 0 is interpreted as 8-bits
-
   @type spi_option ::
-    {:mode, 0..3}
-    | {:bits_per_word, 0..16}
-    | {:speed_hz, pos_integer}
-    | {:delay_us, non_neg_integer}
+          {:mode, 0..3}
+          | {:bits_per_word, 0..16}
+          | {:speed_hz, pos_integer}
+          | {:delay_us, non_neg_integer}
 
   @doc """
   Open SPI channel
   On success, returns an integer file descriptor.
   Use file descriptor (fd) in subsequent calls to transfer spi bus data
+
   Parameters:
   * `device` is the Linux device name for the bus (e.g., "spidev0.0")
   * `spi_opts` is a keyword list to configure the bus
+
+  SPI bus options include:
+  * `mode`: This specifies the clock polarity and phase to use. (0)
+  * `bits_per_word`: bits per word on the bus (8)
+  * `speed_hz`: bus speed (1000000)
+  * `delay_us`: delay between transaction (10)
   """
   @spec open(binary, [spi_option]) :: {:ok, integer}
   def open(device, spi_opts \\ []) do
@@ -52,7 +47,7 @@ defmodule ElixirCircuits.SPI do
   end
 
   @doc """
-  Release any resources associated with the given file descriptior
+  Release any resources associated with the given file descriptor
   """
   @spec close(integer) :: :ok
   def close(fd) do
@@ -74,5 +69,4 @@ defmodule ElixirCircuits.SPI do
     Path.wildcard("/dev/spidev*")
     |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
   end
-
 end

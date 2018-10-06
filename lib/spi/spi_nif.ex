@@ -7,8 +7,12 @@ defmodule ElixirCircuits.SPI.Nif do
   """
 
   def load_nif() do
-    nif_exec = '#{:code.priv_dir(:spi)}/spi_nif'
-    :erlang.load_nif(nif_exec, 0)
+    nif_binary = Application.app_dir(:spi, "priv/spi_nif")
+    if File.exists?(nif_binary) do
+      :erlang.load_nif(to_charlist(nif_binary), 0)
+    else
+      IO.puts("WARNING: Not loading SPI NIF since not compiled or not supported on this platform")
+    end
   end
 
   def open(_device, _mode, _bits_per_word, _speed_hz, _delay_us) do

@@ -9,6 +9,8 @@
 # LDFLAGS	linker flags for linking all binaries
 # ERL_LDFLAGS	additional linker flags for projects referencing Erlang libraries
 
+NIF=priv/spi_nif.so
+
 # Check that we're on a supported build platform
 ifeq ($(CROSSCOMPILE),)
     # Not crosscompiling, so check that we're on Linux.
@@ -22,7 +24,7 @@ ifeq ($(CROSSCOMPILE),)
 	DEFAULT_TARGETS = priv
     endif
 endif
-DEFAULT_TARGETS ?= priv priv/spi
+DEFAULT_TARGETS ?= priv $(NIF)
 
 # Look for the EI library and header files
 # For crosscompiled builds, ERL_EI_INCLUDE_DIR and ERL_EI_LIBDIR must be
@@ -42,16 +44,13 @@ ERL_LDFLAGS ?= -L$(ERL_EI_LIBDIR) -lei
 
 LDFLAGS += -fPIC -shared -pedantic
 CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter
-CC ?= $(CROSSCOMPILE)-gcc
-
-NIF=priv/spi_nif.so
 
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 
 .PHONY: all clean
 
-all: priv $(NIF) 
+all: $(DEFAULT_TARGETS)
 
 $(OBJ): $(wildcard src/*.h)
 

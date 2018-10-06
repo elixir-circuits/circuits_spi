@@ -18,6 +18,7 @@
 
 #include <err.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <bits/stdint-uintn.h>
 
 #include "erl_nif.h"
 
@@ -64,8 +64,8 @@ static void del_spi_info(int fd)
     SpiInfo *prev_entry = NULL;
     SpiInfo *curr_entry = spi_info_head;
 
-    while(curr_entry != NULL){
-        if (curr_entry->fd == fd){
+    while(curr_entry != NULL) {
+        if (curr_entry->fd == fd) {
             if (prev_entry == NULL)
                 spi_info_head = curr_entry->next;
             else
@@ -96,7 +96,7 @@ static SpiInfo* get_spi_info(int fd)
 {
     SpiInfo *curr_entry = spi_info_head;
 
-    while(curr_entry != NULL){
+    while(curr_entry != NULL) {
         if (curr_entry->fd == fd)
             return curr_entry;
 
@@ -127,28 +127,28 @@ static int spi_init( const char *devpath,
     SpiInfo *spi;
 
     int fd = open(devpath, O_RDWR);
-    if (fd < 0){
+    if (fd < 0) {
         sprintf(error_str, "opening_%s", devpath);
         return -1;
     }
 
-    if (ioctl(fd, SPI_IOC_WR_MODE, &mode) < 0){
+    if (ioctl(fd, SPI_IOC_WR_MODE, &mode) < 0) {
         sprintf(error_str, "ioctl(SPI_IOC_WR_MODE_%d)", mode);
         return -1;
     }
 
     // Set these to check for bad values given by the user. They get
     // set again on each transfer.
-    if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word) < 0){
+    if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word) < 0) {
         sprintf(error_str, "ioctl(SPI_IOC_WR_BITS_PER_WORD_%d)", bits_per_word);
         return -1;
     }
 
-    if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed_hz) < 0){
+    if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed_hz) < 0) {
         sprintf(error_str, "ioctl(SPI_IOC_WR_MAX_SPEED_HZ_%d)", speed_hz);
         return -1;
     }
-    
+
     // Successfully opened SPI channel, allocate memory to hold channel details
     // Add to list of SPI channels
     spi = (SpiInfo*) malloc(sizeof(SpiInfo));
@@ -185,7 +185,7 @@ static ERL_NIF_TERM open_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
 
     if (!enif_get_uint(env, argv[2], (unsigned int*) &bits_per_word))
         return enif_make_badarg(env);
-    
+
     if (!enif_get_ulong(env, argv[3], (unsigned long*) &speed_hz))
         return enif_make_badarg(env);
 
@@ -195,8 +195,8 @@ static ERL_NIF_TERM open_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     int fd = spi_init(devpath, mode, bits_per_word, speed_hz, delay_us, error_str);
 
     if (fd < 0)
-        return enif_make_tuple2(env, enif_make_atom(env, "error"), 
-                                     enif_make_atom(env, error_str));
+        return enif_make_tuple2(env, enif_make_atom(env, "error"),
+                                enif_make_atom(env, error_str));
 
     return enif_make_tuple2(env, enif_make_atom(env, "ok"), enif_make_int(env, fd));
 }
@@ -214,12 +214,12 @@ static ERL_NIF_TERM transfer_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
 
     if (!enif_inspect_binary(env, argv[1], &bin_write))
-       return enif_make_badarg(env);
+        return enif_make_badarg(env);
 
     spi = get_spi_info(fd);
     if (!spi)
-        return enif_make_tuple2(env, enif_make_atom(env, "error"), 
-                                     enif_make_atom(env, "invalid_file_descriptor"));
+        return enif_make_tuple2(env, enif_make_atom(env, "error"),
+                                enif_make_atom(env, "invalid_file_descriptor"));
 
     struct spi_ioc_transfer tfer = spi->transfer;
 
@@ -233,8 +233,8 @@ static ERL_NIF_TERM transfer_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     tfer.len = bin_write.size;
 
     if (ioctl(fd, SPI_IOC_MESSAGE(1), &tfer) < 1)
-        return enif_make_tuple2(env, enif_make_atom(env, "error"), 
-                                     enif_make_atom(env, "transfer_failed"));
+        return enif_make_tuple2(env, enif_make_atom(env, "error"),
+                                enif_make_atom(env, "transfer_failed"));
 
     bin_read.data = read_data;
     bin_read.size = bin_write.size;
