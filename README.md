@@ -1,11 +1,11 @@
 # SPI- Do not use !!
 
-[![Build Status](https://travis-ci.org/fhunleth/elixir_circuits_spi.svg)](https://travis-ci.org/fhunleth/elixir_circuits_spi)
-[![Hex version](https://img.shields.io/hexpm/v/elixir_circuits_spi.svg "Hex version")](https://hex.pm/packages/elixir_circuits_spi)
+[![CircleCI](https://circleci.com/gh/ElixirCircuits/spi.svg?style=svg)](https://circleci.com/gh/ElixirCircuits/spi)
+[![Hex version](https://img.shields.io/hexpm/v/spi.svg "Hex version")](https://hex.pm/packages/spi)
 
-`spi` provides high level abstractions for interfacing to SPI
-buses on Linux platforms. Internally, it uses the Linux
-sysclass interface so that it does not require platform-dependent code.
+`spi` provides high level abstractions for interfacing to SPI buses on Linux
+platforms. Internally, it uses the Linux sysclass interface so that it does not
+require platform-dependent code.
 
 # Getting started
 
@@ -22,7 +22,7 @@ end
 If you just want to try it out, you can do the following:
 
 ```shell
-git clone https://github.com/ElixirCircuits/spi 
+git clone https://github.com/ElixirCircuits/spi
 cd spi
 mix compile
 iex -S mix
