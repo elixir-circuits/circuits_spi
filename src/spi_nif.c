@@ -208,7 +208,7 @@ static ERL_NIF_TERM transfer_spi(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     SpiInfo *spi;
     ErlNifBinary bin_write;
     ErlNifBinary bin_read;
-    char read_data[SPI_TRANSFER_MAX];
+    uint8_t read_data[SPI_TRANSFER_MAX];
 
     if (!enif_get_int(env, argv[0], &fd))
         return enif_make_badarg(env);
@@ -259,4 +259,4 @@ static ErlNifFunc nif_funcs[] =
     {"close", 1, close_spi, 0}
 };
 
-ERL_NIF_INIT(Elixir.ElixirCircuits.SPI.Nif, nif_funcs, NULL, NULL, NULL, NULL);
+ERL_NIF_INIT(Elixir.ElixirCircuits.SPI.Nif, nif_funcs, NULL, NULL, NULL, NULL)
