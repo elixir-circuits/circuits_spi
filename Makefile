@@ -46,22 +46,18 @@ LDFLAGS += -fPIC -shared -pedantic
 CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter
 
 SRC=$(wildcard src/*.c)
-OBJ=$(SRC:.c=.o)
 
 .PHONY: all clean
 
 all: $(DEFAULT_TARGETS)
 
-$(OBJ): $(wildcard src/*.h)
-
-%.o: %.c
-	$(CC) -c $(ERL_CFLAGS) $(CFLAGS) -o $@ $<
+$(NIF): $(wildcard src/*.h)
 
 priv:
 	mkdir -p priv
 
-$(NIF): $(OBJ)
-	$(CC) $(ERL_LDFLAGS) $(LDFLAGS) -o $@ $^
+$(NIF): $(SRC)
+	$(CC) $(ERL_CFLAGS) $(CFLAGS) $(ERL_LDFLAGS) $(LDFLAGS) -o $@ $^
 
 clean:
-	rm $(NIF) src/*.o
+	rm $(NIF)

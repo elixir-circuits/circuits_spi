@@ -6,12 +6,12 @@ defmodule SPI.MixProject do
       app: :spi,
       version: "0.1.0",
       elixir: "~> 1.6",
-      name: "spi",
       description: description(),
       package: package(),
       source_url: "https://github.com/ElixirCircuits/spi",
       compilers: [:elixir_make | Mix.compilers()],
       make_clean: ["clean"],
+      make_env: make_env(),
       docs: [extras: ["README.md"]],
       aliases: [docs: ["docs", &copy_images/1], format: ["format", &format_c/1]],
       start_permanent: Mix.env() == :prod,
@@ -63,4 +63,17 @@ defmodule SPI.MixProject do
   end
 
   defp format_c(_args), do: true
+
+  defp make_env() do
+    case System.get_env("ERL_EI_INCLUDE_DIR") do
+      nil ->
+        %{
+          "ERL_EI_INCLUDE_DIR" => "#{:code.root_dir()}/usr/include",
+          "ERL_EI_LIBDIR" => "#{:code.root_dir()}/usr/lib"
+        }
+
+      _ ->
+        %{}
+    end
+  end
 end
