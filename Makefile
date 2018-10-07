@@ -61,7 +61,7 @@ priv:
 	mkdir -p priv
 
 $(NIF): $(OBJ)
-	$(CC) $^ $(ERL_LDFLAGS) $(LDFLAGS) -o $@
+	$(CC) $(ERL_LDFLAGS) $(LDFLAGS) -o $@ $^
 
 clean:
 	rm $(NIF) src/*.o
