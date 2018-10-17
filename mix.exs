@@ -1,15 +1,16 @@
-defmodule SPI.MixProject do
+defmodule ElixirCircuits.SPI.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :spi,
+      app: :elixir_circuits_spi,
       version: "0.1.0",
       elixir: "~> 1.6",
       description: description(),
       package: package(),
-      source_url: "https://github.com/ElixirCircuits/spi",
+      source_url: "https://github.com/elixir-circuits/spi",
       compilers: [:elixir_make | Mix.compilers()],
+      make_targets: ["all"],
       make_clean: ["clean"],
       make_env: make_env(),
       docs: [extras: ["README.md"]],
@@ -36,7 +37,7 @@ defmodule SPI.MixProject do
         "Makefile"
       ],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/ElixirCircuits/spi"}
+      links: %{"GitHub" => "https://github.com/elixir-circuits/spi"}
     }
   end
 
