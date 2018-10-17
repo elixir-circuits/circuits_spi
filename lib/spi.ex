@@ -14,8 +14,8 @@ defmodule ElixirCircuits.SPI do
 
   @doc """
   Open SPI channel
-  On success, returns an integer file descriptor.
-  Use file descriptor (fd) in subsequent calls to transfer spi bus data
+  On success, returns a reference.
+  Use reference in subsequent calls to transfer spi bus data
 
   Parameters:
   * `device` is the Linux device name for the bus (e.g., "spidev0.0")
@@ -27,7 +27,7 @@ defmodule ElixirCircuits.SPI do
   * `speed_hz`: bus speed (1000000)
   * `delay_us`: delay between transaction (10)
   """
-  @spec open(binary, [spi_option]) :: {:ok, integer}
+  @spec open(binary, [spi_option]) :: {:ok, reference}
   def open(device, spi_opts \\ []) do
     mode = Keyword.get(spi_opts, :mode, 0)
     bits_per_word = Keyword.get(spi_opts, :bits_per_word, 8)
@@ -41,17 +41,17 @@ defmodule ElixirCircuits.SPI do
   send. Since SPI transfers simultaneously send and receive, the return value
   will be a binary of the same length or an error.
   """
-  @spec transfer(integer, binary) :: {:ok, binary} | {:error, term}
-  def transfer(fd, data) do
-    Nif.transfer(fd, data)
+  @spec transfer(reference, binary) :: {:ok, binary} | {:error, term}
+  def transfer(ref, data) do
+    Nif.transfer(ref, data)
   end
 
   @doc """
   Release any resources associated with the given file descriptor
   """
-  @spec close(integer) :: :ok
-  def close(fd) do
-    Nif.close(fd)
+  @spec close(reference) :: :ok
+  def close(ref) do
+    Nif.close(ref)
   end
 
   @doc """
