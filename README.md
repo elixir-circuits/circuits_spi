@@ -1,56 +1,36 @@
-# SPI- Do not use !!
+# ElixirCircuits.SPI
 
-[![CircleCI](https://circleci.com/gh/ElixirCircuits/spi.svg?style=svg)](https://circleci.com/gh/ElixirCircuits/spi)
-[![Hex version](https://img.shields.io/hexpm/v/spi.svg "Hex version")](https://hex.pm/packages/spi)
+[![CircleCI](https://circleci.com/gh/elixir-circuits/spi.svg?style=svg)](https://circleci.com/gh/elixir-circuits/spi)
+[![Hex version](https://img.shields.io/hexpm/v/elixir_circuits_spi.svg "Hex version")](https://hex.pm/packages/elixir_circuits_spi)
 
-`spi` provides high level abstractions for interfacing to SPI buses on Linux
-platforms. Internally, it uses the Linux sysclass interface so that it does not
-require platform-dependent code.
+`ElixirCircuits.SPI` provides high level abstractions for interfacing to SPI buses on Linux
+platforms. Internally, it uses the [Linux device
+interface](https://elixir.bootlin.com/linux/latest/source/Documentation/spi/spidev)
+so that it does not require board-dependent code.
 
 # Getting started
 
-If you're natively compiling elixir_ale, everything should work like any other
-Elixir library. Normally, you would include elixir_ale as a dependency in your
-`mix.exs` like this:
+If you're using Nerves or compiling on a Raspberry Pi or other device with I2C
+support, then add `elixir_circuits_i2c` like any other Elixir library:
 
 ```elixir
 def deps do
-  [{:spi, "~> 0.1"}]
+  [{:elixir_circuits_spi, "~> 0.1"}]
 end
 ```
 
-If you just want to try it out, you can do the following:
-
-```shell
-git clone https://github.com/ElixirCircuits/spi
-cd spi
-mix compile
-iex -S mix
-```
-
-If you're cross-compiling, you'll need to setup your environment so that the
-right C compiler is called. See the `Makefile` for the variables that will need
-to be overridden. At a minimum, you will need to set `CROSSCOMPILE`,
-`ERL_CFLAGS`, and `ERL_EI_LIBDIR`.
-
-`spi` doesn't load device drivers, so you'll need to make sure that any
-necessary ones for accessing SPI are loaded beforehand. On the Raspberry
+`ElixirCircuits.SPI` doesn't load device drivers, so you'll need to load any
+necessary ones beforehand. On the Raspberry
 Pi, the [Adafruit Raspberry Pi SPI
 instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-spi)
 may be helpful.
 
-If you're trying to compile on a Raspberry Pi and you get errors indicated that Erlang headers are missing
-(`ie.h`), you may need to install erlang with `apt-get install
-erlang-dev` or build Erlang from source per instructions [here](http://elinux.org/Erlang).
-
 # Examples
 
-`spi` only supports simple uses of the SPI interface in
-Linux, but you can still do quite a bit. The following examples were tested on a
-Raspberry Pi that was connected to an [Erlang Embedded Demo
-Board](http://solderpad.com/omerk/erlhwdemo/). There's nothing special about
-either the demo board or the Raspberry Pi, so these should work similarly on
-other embedded Linux platforms.
+The following examples were tested on a Raspberry Pi that was connected to an
+[Erlang Embedded Demo Board](http://solderpad.com/omerk/erlhwdemo/). There's
+nothing special about either the demo board or the Raspberry Pi, so these should
+work similarly on other embedded Linux platforms.
 
 ## SPI
 
@@ -113,15 +93,19 @@ extremely convenient when working with hardware. More information can be
 found in the [Kernel.SpecialForms documentation](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)
 and by running `h <<>>` at the IEx prompt.
 
+## FAQ
 
+### Where can I get help?
 
-### Can I help maintain elixir_circuits?
+The hardest part is communicating with a device for the first time. The issue is
+usually unrelated to `ElixirCircuits.I2C`. If you expand your searches to
+include Python and C forums, you'll frequently find the answer.
 
-Yes! If your life has been improved by `spi` and you want to give back,
-it would be great to have new energy put into this project. Please email me.
+If that fails, try posting a question to the [Elixir
+Forum](https://elixirforum.com/). Tag the question with `Nerves` and it will
+have a good chance of getting to the right people. Feel free to do this even if
+you're not using Nerves.
 
 # License
 
-This library draws much of its design and code from the Erlang/ALE project which
-is licensed under the Apache License, Version 2.0. As such, it is licensed
-similarly.
+Code from the library is licensed under the Apache License, Version 2.0.
