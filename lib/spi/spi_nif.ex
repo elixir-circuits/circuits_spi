@@ -2,16 +2,23 @@ defmodule ElixirCircuits.SPI.Nif do
   @on_load {:load_nif, 0}
   @compile {:autoload, false}
 
+  require Logger
+
   @doc """
   Elixir interface to SPI Natively Implemented Funtions (NIFs)
   """
 
   def load_nif() do
     nif_binary = Application.app_dir(:spi, "priv/spi_nif")
-    if File.exists?(nif_binary) do
-      :erlang.load_nif(to_charlist(nif_binary), 0)
-    else
-      IO.puts("WARNING: Not loading SPI NIF since not compiled or not supported on this platform")
+
+    case :erlang.load_nif(to_charlist(nif_binary), 0) do
+      {:error, reason} ->
+        Logger.error(
+          "ElixirCircuits.I2CError: load_nif(#{nif_binary}) failed with #{inspect(reason)}"
+        )
+
+      _ ->
+        :ok
     end
   end
 
@@ -19,11 +26,11 @@ defmodule ElixirCircuits.SPI.Nif do
     :erlang.nif_error(:nif_not_loaded)
   end
 
-  def transfer(_fd, _data) do
+  def transfer(_ref, _data) do
     :erlang.nif_error(:nif_not_loaded)
   end
 
-  def close(_fd) do
+  def close(_ref) do
     :erlang.nif_error(:nif_not_loaded)
   end
 end
