@@ -1,10 +1,10 @@
-defmodule ElixirCircuits.SPI do
+defmodule Circuits.SPI do
   @moduledoc """
   This module enables Elixir programs to interact with hardware that's connected
   via a SPI bus.
   """
 
-  alias ElixirCircuits.SPI.Nif, as: Nif
+  alias Circuits.SPI.Nif, as: Nif
 
   @type spi_option ::
           {:mode, 0..3}
@@ -60,7 +60,7 @@ defmodule ElixirCircuits.SPI do
   kernel's device tree is not configured. On Raspbian, run `raspi-config` and
   look in the advanced options.
   ```
-  iex> ElixirCircuits.SPI.device_names
+  iex> Circuits.SPI.device_names
   ["spidev0.0", "spidev0.1"]
   ```
   """
