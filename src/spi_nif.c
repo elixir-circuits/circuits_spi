@@ -179,4 +179,4 @@ static ErlNifFunc nif_funcs[] =
     {"close", 1, spi_close, 0}
 };
 
-ERL_NIF_INIT(Elixir.ElixirCircuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
+ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
