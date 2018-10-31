@@ -24,14 +24,6 @@ ones beforehand. On the Raspberry Pi, the [Adafruit Raspberry Pi SPI
 instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-spi)
 may be helpful.
 
-## Examples
-
-The following examples were tested on a Raspberry Pi that was connected to an
-[Erlang Embedded Demo Board](http://solderpad.com/omerk/erlhwdemo/). There's
-nothing special about either the demo board or the Raspberry Pi, so these should
-work similarly on other embedded Linux platforms.
-
-## SPI
 
 A [Serial Peripheral
 Interface](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus) (SPI)
@@ -71,13 +63,13 @@ the thermometer.
 ```elixir
 # Make sure that you've enabled or loaded the SPI driver or this will
 # fail.
-iex> {:ok, fd} = Circuits.SPI.open("spidev0.0")
-{:ok, 28}
+iex> {:ok, ref} = Circuits.SPI.open("spidev0.0")
+{:ok, #Reference<...>}
 
 # Read the potentiometer
 
 # Use binary pattern matching to pull out the ADC counts (low 10 bits)
-iex> {:ok, <<_::size(6), counts::size(10)>>} = Circuits.SPI.transfer(fd, <<0x78, 0x00>>)
+iex> {:ok, <<_::size(6), counts::size(10)>>} = Circuits.SPI.transfer(ref, <<0x78, 0x00>>)
 {:ok, <<1, 197>>}
 
 iex> counts
