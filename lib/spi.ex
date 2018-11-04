@@ -70,6 +70,14 @@ defmodule Circuits.SPI do
     |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
   end
 
+  @doc """
+  Return info about the low level SPI interface
+
+  This may be helpful when debugging SPI issues.
+  """
+  @spec info() :: map()
+  defdelegate info(), to: Nif
+
   defmodule :circuits_spi do
     @moduledoc """
     Provide an Erlang friendly interface to Circuits

@@ -1,7 +1,6 @@
 #ifndef SPI_NIF_H
 #define SPI_NIF_H
 
-
 #include "erl_nif.h"
 
 #include <err.h>
@@ -14,13 +13,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <linux/spi/spidev.h>
-
-#ifndef _IOC_SIZE_BITS
-// Include <asm/ioctl.h> manually on platforms that don't include it
-// from <sys/ioctl.h>.
-#include <asm/ioctl.h>
-#endif
 
 //#define DEBUG
 
@@ -41,19 +33,51 @@
 // Max SPI transfer size that we support
 #define SPI_TRANSFER_MAX 4096
 
-
-// SPI NIF Resource.
-struct SpiNifRes {
-    int fd;
-    struct spi_ioc_transfer transfer;
+struct SpiConfig {
+    unsigned int mode;
+    unsigned int bits_per_word;
+    unsigned int speed_hz;
+    unsigned int delay_us;
 };
 
+/**
+ * Return information about the HAL.
+ *
+ * This should return a map with the name of the HAL and any info that
+ * would help debug issues with it.
+ */
+ERL_NIF_TERM hal_info(ErlNifEnv *env);
 
-// SPI NIF Private data
-struct SpiNifPriv {
-    ErlNifResourceType *spi_nif_res_type;
-    ERL_NIF_TERM atom_ok;
-    ERL_NIF_TERM atom_error;
-};
+/**
+ * Open an SPI device
+ *
+ * @param device the name of the SPI device
+ *
+ * @return <0 on error or a handle on success
+ */
+int hal_spi_open(const char *device,
+                 const struct SpiConfig *config,
+                 char *error_str);
+
+/**
+ * Free resources associated with an SPI device
+ */
+void hal_spi_close(int fd);
+
+/**
+ * Transfer data over SPI
+ *
+ * @param fd the file descriptor returned from hal_spi_open
+ * @param config the SPI configuration to use
+ * @param to_write
+ * @param to_read
+ * @param len
+ * @return
+ */
+int hal_spi_transfer(int fd,
+                     const struct SpiConfig *config,
+                     const uint8_t *to_write,
+                     uint8_t *to_read,
+                     size_t len);
 
 #endif // SPI_NIF_H

@@ -18,6 +18,18 @@
 
 #include "spi_nif.h"
 
+// SPI NIF Private data
+struct SpiNifPriv {
+    ErlNifResourceType *spi_nif_res_type;
+    ERL_NIF_TERM atom_ok;
+    ERL_NIF_TERM atom_error;
+};
+
+// SPI NIF Resource.
+struct SpiNifRes {
+    int fd;
+    struct SpiConfig config;
+};
 
 static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 {
@@ -47,74 +59,45 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
     return 0;
 }
 
-
 static void spi_unload(ErlNifEnv *env, void *priv_data)
 {
     debug("spi_unload");
-    struct SpiNifPriv *priv = enif_priv_data(env);
-
-    enif_free(priv);
+    enif_free(priv_data);
 }
-
 
 static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     struct SpiNifPriv *priv = enif_priv_data(env);
-    char devpath[64] = "/dev/";
     char device[16];
-    unsigned int mode;
-    unsigned int bits_per_word;
-    unsigned int speed_hz;
-    unsigned int delay_us;
     char error_str[128];
+
+    struct SpiConfig config;
+    int fd;
 
     if (!enif_get_string(env, argv[0], device, sizeof(device), ERL_NIF_LATIN1))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[1], &mode))
+    if (!enif_get_uint(env, argv[1], &config.mode))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[2], &bits_per_word))
+    if (!enif_get_uint(env, argv[2], &config.bits_per_word))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[3], &speed_hz))
+    if (!enif_get_uint(env, argv[3], &config.speed_hz))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[4], &delay_us))
+    if (!enif_get_uint(env, argv[4], &config.delay_us))
         return enif_make_badarg(env);
 
-    strcat(devpath, device);
-    int fd = open(devpath, O_RDWR);
-    if (fd < 0)
-        return enif_make_tuple2(env, priv->atom_error,
-                                enif_make_atom(env, "access_denied"));
-
-    // Set these to check for bad values given by the user. They get
-    // set again on each transfer.
-    if (ioctl(fd, SPI_IOC_WR_MODE, &mode) < 0) {
-        sprintf(error_str, "ioctl(SPI_IOC_WR_MODE_%d)", mode);
-        return enif_make_tuple2(env, priv->atom_error,
-                                enif_make_atom(env, error_str));
-    }
-
-    if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word) < 0) {
-        sprintf(error_str, "ioctl(SPI_IOC_WR_BITS_PER_WORD_%d)", bits_per_word);
-        return enif_make_tuple2(env, priv->atom_error,
-                                enif_make_atom(env, error_str));
-    }
-
-    if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed_hz) < 0) {
-        sprintf(error_str, "ioctl(SPI_IOC_WR_MAX_SPEED_HZ_%d)", speed_hz);
+    fd = hal_spi_open(device, &config, error_str);
+    if (fd < 0) {
         return enif_make_tuple2(env, priv->atom_error,
                                 enif_make_atom(env, error_str));
     }
 
     struct SpiNifRes *spi_nif_res = enif_alloc_resource(priv->spi_nif_res_type, sizeof(struct SpiNifRes));
-
     spi_nif_res->fd = fd;
-    spi_nif_res->transfer.bits_per_word = bits_per_word;
-    spi_nif_res->transfer.speed_hz = speed_hz;
-    spi_nif_res->transfer.delay_usecs = delay_us;
+    spi_nif_res->config = config;
     ERL_NIF_TERM res_term = enif_make_resource(env, spi_nif_res);
 
     // Elixir side owns the resource. Safe for NIF side to release it.
@@ -138,18 +121,7 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     if (!enif_inspect_binary(env, argv[1], &bin_write))
         return enif_make_badarg(env);
 
-    struct spi_ioc_transfer tfer = res->transfer;
-
-    // The Linux header spidev.h expects pointers to be in 64-bit integers (__u64),
-    // but pointers on Raspberry Pi are only 32 bits.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
-    tfer.tx_buf = (__u64) bin_write.data;
-    tfer.rx_buf = (__u64) read_data;
-#pragma GCC diagnostic pop
-    tfer.len = bin_write.size;
-
-    if (ioctl(res->fd, SPI_IOC_MESSAGE(1), &tfer) < 1)
+    if (hal_spi_transfer(res->fd, &res->config, bin_write.data, read_data, bin_write.size) < 0)
         return enif_make_tuple2(env, priv->atom_error,
                                 enif_make_atom(env, "transfer_failed"));
 
@@ -167,16 +139,25 @@ static ERL_NIF_TERM spi_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[
     if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
         return enif_make_badarg(env);
 
-    res->fd = -1;
+    if (res->fd >= 0) {
+        hal_spi_close(res->fd);
+        res->fd = -1;
+    }
 
     return priv->atom_ok;
+}
+
+static ERL_NIF_TERM spi_info(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    return hal_info(env);
 }
 
 static ErlNifFunc nif_funcs[] =
 {
     {"open", 5, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"transfer", 2, spi_transfer, 0},
-    {"close", 1, spi_close, 0}
+    {"close", 1, spi_close, 0},
+    {"info", 0, spi_info, 0}
 };
 
 ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
