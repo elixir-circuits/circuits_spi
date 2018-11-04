@@ -2,9 +2,7 @@ defmodule Circuits.SPI.Nif do
   @on_load {:load_nif, 0}
   @compile {:autoload, false}
 
-  @doc """
-  Elixir interface to SPI Natively Implemented Functions (NIFs)
-  """
+  @moduledoc false
 
   def load_nif() do
     nif_binary = Application.app_dir(:circuits_spi, "priv/spi_nif")
