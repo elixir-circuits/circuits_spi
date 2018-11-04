@@ -13,7 +13,7 @@ defmodule Circuits.SPI.MixProject do
       make_targets: ["all"],
       make_clean: ["clean"],
       make_env: make_env(),
-      docs: [extras: ["README.md"]],
+      docs: [extras: ["README.md"], main: "readme"],
       aliases: [docs: ["docs", &copy_images/1], format: ["format", &format_c/1]],
       start_permanent: Mix.env() == :prod,
       deps: deps()
