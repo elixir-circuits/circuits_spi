@@ -62,25 +62,25 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     struct SpiNifPriv *priv = enif_priv_data(env);
     char devpath[64] = "/dev/";
     char device[16];
-    uint8_t mode;
-    uint8_t bits_per_word;
-    uint32_t speed_hz;
-    uint16_t delay_us;
+    unsigned int mode;
+    unsigned int bits_per_word;
+    unsigned int speed_hz;
+    unsigned int delay_us;
     char error_str[128];
 
     if (!enif_get_string(env, argv[0], device, sizeof(device), ERL_NIF_LATIN1))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[1], (unsigned int*) &mode))
+    if (!enif_get_uint(env, argv[1], &mode))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[2], (unsigned int*) &bits_per_word))
+    if (!enif_get_uint(env, argv[2], &bits_per_word))
         return enif_make_badarg(env);
 
-    if (!enif_get_ulong(env, argv[3], (unsigned long*) &speed_hz))
+    if (!enif_get_uint(env, argv[3], &speed_hz))
         return enif_make_badarg(env);
 
-    if (!enif_get_uint(env, argv[4], (unsigned int*) &delay_us))
+    if (!enif_get_uint(env, argv[4], &delay_us))
         return enif_make_badarg(env);
 
     strcat(devpath, device);
