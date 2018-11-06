@@ -87,6 +87,23 @@ and by running `h <<>>` at the IEx prompt.
 
 ## FAQ
 
+### How do I debug?
+
+The most common issue is communicating with a SPI device for the first time.  For SPI,
+first check that a SPI bus is available:
+
+```elixir
+iex> Circuits.SPI.device_names
+["spidev0.0", "spidev0.1"]
+```
+If the list is empty, then SPI is either not available, not enabled, or not
+configured in the kernel. If you're using Raspbian, run `raspi-config` and check
+that SPI is enabled in the advanced options. If you're on a BeagleBone, try
+running `config-pin` and see the [Universal I/O
+project](https://github.com/cdsteinkuehler/beaglebone-universal-io) to enable
+the SPI pins. On other ARM boards, double check that SPI is enabled in the
+kernel and that the device tree configures it.
+
 ### Where can I get help?
 
 The hardest part is communicating with a device for the first time. The issue is
@@ -97,6 +114,29 @@ If that fails, try posting a question to the [Elixir
 Forum](https://elixirforum.com/). Tag the question with `Nerves` and it will
 have a good chance of getting to the right people. Feel free to do this even if
 you're not using Nerves.
+
+### Can I develop code that uses Circuits.SPI on my laptop?
+
+You'll need to fake out the hardware. Code to do this depends on what your
+hardware actually does, but here's one example:
+
+* http://www.cultivatehq.com/posts/compiling-and-testing-elixir-nerves-on-your-host-machine/
+
+Please share other examples if you have them.
+
+### Will it run on Arduino?
+
+No. This only runs on Linux-based boards. If you're interested in controlling an
+Arduino from a computer that can run Elixir, check out
+[nerves_uart](https://hex.pm/packages/nerves_uart) for communicating via the
+Arduino's serial connection or
+[firmata](https://github.com/mobileoverlord/firmata) for communication using the
+Arduino's Firmata protocol.
+
+### How do I call Circuits.SPI from Erlang?
+
+An Erlang friendly binding has been provided to simplify syntax when calling `Circuits.SPI` functions from Erlang code.  Instead of prefixing calls with: `'Elixir.Circuits.SPI':` you may use the binding: `circuits_spi:`.
+For example: `circuits_spi:open("spidev0.1")`.
 
 ## License
 
