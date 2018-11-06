@@ -69,4 +69,15 @@ defmodule Circuits.SPI do
     Path.wildcard("/dev/spidev*")
     |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
   end
+
+  defmodule :circuits_spi do
+    @moduledoc """
+    Provide an Erlang friendly interface to Circuits
+    Example Erlang code:  circuits_spi:open("spidev0.1")
+    """
+    defdelegate open(device), to: Circuits.SPI
+    defdelegate open(device, spi_opts), to: Circuits.SPI
+    defdelegate transfer(ref, data), to: Circuits.SPI
+    defdelegate close(ref), to: Circuits.SPI
+  end
 end
