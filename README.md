@@ -89,26 +89,28 @@ and by running `h <<>>` at the IEx prompt.
 
 ### How do I debug?
 
-The most common issue is communicating with a SPI device for the first time.  For SPI,
-first check that a SPI bus is available:
+The most common issue is communicating with a SPI device for the first time.
+First check that a SPI bus is available:
 
 ```elixir
 iex> Circuits.SPI.bus_names()
 ["spidev0.0", "spidev0.1"]
 ```
-If the list is empty, then SPI is either not available, not enabled, or not
-configured in the kernel. If you're using Raspbian, run `raspi-config` and check
-that SPI is enabled in the advanced options. If you're on a BeagleBone, try
-running `config-pin` and see the [Universal I/O
+
+If the list is empty, then a SPI bus is either not available, not enabled, or
+not configured in the kernel. If you're using Raspbian, run `raspi-config` and
+check that SPI is enabled in the advanced options. If you're on a BeagleBone,
+try running `config-pin` and see the [Universal I/O
 project](https://github.com/cdsteinkuehler/beaglebone-universal-io) to enable
 the SPI pins. On other ARM boards, double check that SPI is enabled in the
 kernel and that the device tree configures it.
 
 ### Where can I get help?
 
-The hardest part is communicating with a device for the first time. The issue is
-usually unrelated to `Circuits.SPI`. If you expand your searches to
-include Python and C forums, you'll frequently find the answer.
+Many issues are unrelated to `Circuits.SPI`. If you expand your searches to
+include Python and C forums, it's possible that someone else has run into your
+problem too. SPI libraries in other languages should be similar to
+`Circuits.SPI` so hopefully you'll find the answer.
 
 If that fails, try posting a question to the [Elixir
 Forum](https://elixirforum.com/). Tag the question with `Nerves` and it will
@@ -135,8 +137,10 @@ Arduino's Firmata protocol.
 
 ### How do I call Circuits.SPI from Erlang?
 
-An Erlang friendly binding has been provided to simplify syntax when calling `Circuits.SPI` functions from Erlang code.  Instead of prefixing calls with: `'Elixir.Circuits.SPI':` you may use the binding: `circuits_spi:`.
-For example: `circuits_spi:open("spidev0.1")`.
+An Erlang friendly binding has been provided to simplify syntax when calling
+`Circuits.SPI` functions from Erlang code.  Instead of prefixing calls with:
+`'Elixir.Circuits.SPI':` you may use the binding: `circuits_spi:`.  For example:
+`circuits_spi:open("spidev0.1")`.
 
 ## License
 
