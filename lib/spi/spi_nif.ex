@@ -9,7 +9,7 @@ defmodule Circuits.SPI.Nif do
     :erlang.load_nif(to_charlist(nif_binary), 0)
   end
 
-  def open(_device, _mode, _bits_per_word, _speed_hz, _delay_us) do
+  def open(_bus_name, _mode, _bits_per_word, _speed_hz, _delay_us) do
     :erlang.nif_error(:nif_not_loaded)
   end
 

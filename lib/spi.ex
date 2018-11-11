@@ -15,11 +15,11 @@ defmodule Circuits.SPI do
   @doc """
   Open SPI channel
   On success, returns a reference.
-  Use reference in subsequent calls to transfer spi bus data
+  Use reference in subsequent calls to transfer SPI bus data
 
   Parameters:
-  * `device` is the Linux device name for the bus (e.g., "spidev0.0")
-  * `spi_opts` is a keyword list to configure the bus
+  * `bus_name` is the name of the bus (e.g., "spidev0.0")
+  * `opts` is a keyword list to configure the bus
 
   SPI bus options include:
   * `mode`: This specifies the clock polarity and phase to use. (0)
@@ -27,13 +27,13 @@ defmodule Circuits.SPI do
   * `speed_hz`: bus speed (1000000)
   * `delay_us`: delay between transaction (10)
   """
-  @spec open(binary, [spi_option]) :: {:ok, reference}
-  def open(device, spi_opts \\ []) do
-    mode = Keyword.get(spi_opts, :mode, 0)
-    bits_per_word = Keyword.get(spi_opts, :bits_per_word, 8)
-    speed_hz = Keyword.get(spi_opts, :speed_hz, 1_000_000)
-    delay_us = Keyword.get(spi_opts, :delay_us, 10)
-    Nif.open(to_charlist(device), mode, bits_per_word, speed_hz, delay_us)
+  @spec open(binary() | charlist(), [spi_option()]) :: {:ok, reference}
+  def open(bus_name, opts \\ []) do
+    mode = Keyword.get(opts, :mode, 0)
+    bits_per_word = Keyword.get(opts, :bits_per_word, 8)
+    speed_hz = Keyword.get(opts, :speed_hz, 1_000_000)
+    delay_us = Keyword.get(opts, :delay_us, 10)
+    Nif.open(to_charlist(bus_name), mode, bits_per_word, speed_hz, delay_us)
   end
 
   @doc """
@@ -55,17 +55,17 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Return a list of available SPI bus device names.  If nothing is returned,
+  Return a list of available SPI bus names.  If nothing is returned,
   it's possible that the kernel driver for that SPI bus is not enabled or the
   kernel's device tree is not configured. On Raspbian, run `raspi-config` and
   look in the advanced options.
   ```
-  iex> Circuits.SPI.device_names
+  iex> Circuits.SPI.bus_names
   ["spidev0.0", "spidev0.1"]
   ```
   """
-  @spec device_names() :: [binary]
-  def device_names() do
+  @spec bus_names() :: [binary()]
+  def bus_names() do
     Path.wildcard("/dev/spidev*")
     |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
   end
@@ -83,8 +83,8 @@ defmodule Circuits.SPI do
     Provide an Erlang friendly interface to Circuits
     Example Erlang code:  circuits_spi:open("spidev0.1")
     """
-    defdelegate open(device), to: Circuits.SPI
-    defdelegate open(device, spi_opts), to: Circuits.SPI
+    defdelegate open(bus_name), to: Circuits.SPI
+    defdelegate open(bus_name, spi_opts), to: Circuits.SPI
     defdelegate transfer(ref, data), to: Circuits.SPI
     defdelegate close(ref), to: Circuits.SPI
   end
