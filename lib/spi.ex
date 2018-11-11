@@ -4,13 +4,23 @@ defmodule Circuits.SPI do
   via a SPI bus.
   """
 
-  alias Circuits.SPI.Nif, as: Nif
+  alias Circuits.SPI.Nif
 
+  @typedoc """
+  SPI bus options. See `open/2`.
+  """
   @type spi_option ::
           {:mode, 0..3}
           | {:bits_per_word, 0..16}
-          | {:speed_hz, pos_integer}
-          | {:delay_us, non_neg_integer}
+          | {:speed_hz, pos_integer()}
+          | {:delay_us, non_neg_integer()}
+
+  @typedoc """
+  SPI bus
+
+  Call `open/2` to obtain an SPI bus reference.
+  """
+  @type spi_bus() :: reference()
 
   @doc """
   Open SPI channel
@@ -27,7 +37,7 @@ defmodule Circuits.SPI do
   * `speed_hz`: bus speed (1000000)
   * `delay_us`: delay between transaction (10)
   """
-  @spec open(binary() | charlist(), [spi_option()]) :: {:ok, reference}
+  @spec open(binary() | charlist(), [spi_option()]) :: {:ok, spi_bus()}
   def open(bus_name, opts \\ []) do
     mode = Keyword.get(opts, :mode, 0)
     bits_per_word = Keyword.get(opts, :bits_per_word, 8)
@@ -41,17 +51,17 @@ defmodule Circuits.SPI do
   send. Since SPI transfers simultaneously send and receive, the return value
   will be a binary of the same length or an error.
   """
-  @spec transfer(reference, binary) :: {:ok, binary} | {:error, term}
-  def transfer(ref, data) do
-    Nif.transfer(ref, data)
+  @spec transfer(spi_bus(), binary()) :: {:ok, binary()} | {:error, term()}
+  def transfer(spi_bus, data) do
+    Nif.transfer(spi_bus, data)
   end
 
   @doc """
   Release any resources associated with the given file descriptor
   """
-  @spec close(reference) :: :ok
-  def close(ref) do
-    Nif.close(ref)
+  @spec close(spi_bus()) :: :ok
+  def close(spi_bus) do
+    Nif.close(spi_bus)
   end
 
   @doc """
