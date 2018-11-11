@@ -93,7 +93,7 @@ The most common issue is communicating with a SPI device for the first time.  Fo
 first check that a SPI bus is available:
 
 ```elixir
-iex> Circuits.SPI.device_names
+iex> Circuits.SPI.bus_names()
 ["spidev0.0", "spidev0.1"]
 ```
 If the list is empty, then SPI is either not available, not enabled, or not
