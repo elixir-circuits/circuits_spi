@@ -4,7 +4,7 @@ defmodule Circuits.SPI.MixProject do
   def project do
     [
       app: :circuits_spi,
-      version: "0.2.0-dev",
+      version: "0.1.1",
       elixir: "~> 1.6",
       description: description(),
       package: package(),
