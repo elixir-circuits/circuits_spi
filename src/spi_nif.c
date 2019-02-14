@@ -31,6 +31,17 @@ struct SpiNifRes {
     struct SpiConfig config;
 };
 
+static void spi_dtor(ErlNifEnv *env, void *obj)
+{
+    struct SpiNifRes *res = (struct SpiNifRes *) obj;
+
+    debug("spi_dtor");
+    if (res->fd >= 0) {
+        hal_spi_close(res->fd);
+        res->fd = -1;
+    }
+}
+
 static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 {
 #ifdef DEBUG
@@ -46,7 +57,7 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
         return 1;
     }
 
-    priv->spi_nif_res_type = enif_open_resource_type(env, NULL, "spi_nif_res_type", NULL, ERL_NIF_RT_CREATE, NULL);
+    priv->spi_nif_res_type = enif_open_resource_type(env, NULL, "spi_nif_res_type", spi_dtor, ERL_NIF_RT_CREATE, NULL);
     if (priv->spi_nif_res_type == NULL) {
         error("open SPI NIF resource type failed");
         return 1;
