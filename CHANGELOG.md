@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.2
+
+* Bug fixes
+  * Fix file handle leak when SPI bus references were garbage collected.
+
 ## v0.1.1
 
 * Bug fixes
