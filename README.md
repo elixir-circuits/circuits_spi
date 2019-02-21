@@ -22,7 +22,7 @@ end
 `Circuits.SPI` doesn't load device drivers, so you'll need to load any necessary
 ones beforehand. On the Raspberry Pi, the [Adafruit Raspberry Pi SPI
 instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-spi)
-may be helpful.
+may be helpful, (This is already enabled for you if you are using Nerves)
 
 
 A [Serial Peripheral
