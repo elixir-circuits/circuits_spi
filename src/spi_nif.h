@@ -30,9 +30,6 @@
 #define elapsed_microseconds() 0
 #endif
 
-// Max SPI transfer size that we support
-#define SPI_TRANSFER_MAX 4096
-
 struct SpiConfig {
     unsigned int mode;
     unsigned int bits_per_word;
