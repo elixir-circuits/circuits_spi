@@ -124,8 +124,8 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     struct SpiNifPriv *priv = enif_priv_data(env);
     struct SpiNifRes *res;
     ErlNifBinary bin_write;
-    ErlNifBinary bin_read;
-    uint8_t read_data[SPI_TRANSFER_MAX];
+    ERL_NIF_TERM bin_read;
+    unsigned char *raw_bin_read;
 
     debug("spi_transfer");
     if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
@@ -134,13 +134,16 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     if (!enif_inspect_binary(env, argv[1], &bin_write))
         return enif_make_badarg(env);
 
-    if (hal_spi_transfer(res->fd, &res->config, bin_write.data, read_data, bin_write.size) < 0)
+    raw_bin_read = enif_make_new_binary(env, bin_write.size, &bin_read);
+    if (!raw_bin_read)
+        return enif_make_tuple2(env, priv->atom_error,
+                                enif_make_atom(env, "alloc_failed"));
+
+    if (hal_spi_transfer(res->fd, &res->config, bin_write.data, raw_bin_read, bin_write.size) < 0)
         return enif_make_tuple2(env, priv->atom_error,
                                 enif_make_atom(env, "transfer_failed"));
 
-    bin_read.data = read_data;
-    bin_read.size = bin_write.size;
-    return enif_make_tuple2(env, priv->atom_ok, enif_make_binary(env, &bin_read));
+    return enif_make_tuple2(env, priv->atom_ok, bin_read);
 }
 
 
