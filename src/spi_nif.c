@@ -85,6 +85,7 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     struct SpiConfig config;
     int fd;
 
+    debug("spi_open");
     if (!enif_get_string(env, argv[0], device, sizeof(device), ERL_NIF_LATIN1))
         return enif_make_badarg(env);
 
@@ -126,6 +127,7 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     ErlNifBinary bin_read;
     uint8_t read_data[SPI_TRANSFER_MAX];
 
+    debug("spi_transfer");
     if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
         return enif_make_badarg(env);
 
@@ -146,6 +148,7 @@ static ERL_NIF_TERM spi_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[
 {
     struct SpiNifPriv *priv = enif_priv_data(env);
     struct SpiNifRes *res;
+    debug("spi_close");
 
     if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
         return enif_make_badarg(env);
