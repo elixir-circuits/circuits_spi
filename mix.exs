@@ -13,7 +13,7 @@ defmodule Circuits.SPI.MixProject do
       make_targets: ["all"],
       make_clean: ["clean"],
       docs: [extras: ["README.md", "PORTING.md"], main: "readme"],
-      aliases: [docs: ["docs", &copy_images/1], format: ["format", &format_c/1]],
+      aliases: [docs: ["docs", &copy_images/1], format: [&format_c/1, "format"]],
       start_permanent: Mix.env() == :prod,
       build_embedded: true,
       dialyzer: [
@@ -59,13 +59,13 @@ defmodule Circuits.SPI.MixProject do
   end
 
   defp format_c([]) do
-    astyle =
-      System.find_executable("astyle") ||
-        Mix.raise("""
-        Could not format C code since astyle is not available.
-        """)
+    case System.find_executable("astyle") do
+      nil ->
+        Mix.Shell.IO.info("Install astyle to format C code.")
 
-    System.cmd(astyle, ["-n", "src/*.c", "src/*.h"], into: IO.stream(:stdio, :line))
+      astyle ->
+        System.cmd(astyle, ["-n", "src/*.c"], into: IO.stream(:stdio, :line))
+    end
   end
 
   defp format_c(_args), do: true
