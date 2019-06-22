@@ -1,13 +1,15 @@
 defmodule Circuits.SPI.MixProject do
   use Mix.Project
 
+  @version "0.1.3"
+
   {:ok, system_version} = Version.parse(System.version())
   @elixir_version {system_version.major, system_version.minor, system_version.patch}
 
   def project do
     [
       app: :circuits_spi,
-      version: "0.1.3",
+      version: @version,
       elixir: "~> 1.4",
       description: description(),
       package: package(),
@@ -15,7 +17,7 @@ defmodule Circuits.SPI.MixProject do
       compilers: [:elixir_make | Mix.compilers()],
       make_targets: ["all"],
       make_clean: ["clean"],
-      docs: [extras: ["README.md", "PORTING.md"], main: "readme"],
+      docs: docs(),
       aliases: [docs: ["docs", &copy_images/1], format: [&format_c/1, "format"]],
       start_permanent: Mix.env() == :prod,
       build_embedded: true,
@@ -50,7 +52,7 @@ defmodule Circuits.SPI.MixProject do
 
   defp deps(elixir_version) when elixir_version >= {1, 7, 0} do
     [
-      {:ex_doc, "~> 0.11", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.11", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: :dev, runtime: false}
       | deps()
     ]
@@ -61,6 +63,15 @@ defmodule Circuits.SPI.MixProject do
   defp deps() do
     [
       {:elixir_make, "~> 0.5", runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: ["README.md", "PORTING.md"],
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: "https://github.com/elixir-circuits/circuits_spi"
     ]
   end
 
