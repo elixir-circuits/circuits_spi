@@ -62,7 +62,7 @@ defmodule Circuits.SPI.MixProject do
 
   defp deps() do
     [
-      {:elixir_make, "~> 0.5", runtime: false}
+      {:elixir_make, "~> 0.6", runtime: false}
     ]
   end
 
