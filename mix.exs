@@ -2,6 +2,7 @@ defmodule Circuits.SPI.MixProject do
   use Mix.Project
 
   @version "0.1.3"
+  @source_url "https://github.com/elixir-circuits/circuits_spi"
 
   {:ok, system_version} = Version.parse(System.version())
   @elixir_version {system_version.major, system_version.minor, system_version.patch}
@@ -13,7 +14,7 @@ defmodule Circuits.SPI.MixProject do
       elixir: "~> 1.4",
       description: description(),
       package: package(),
-      source_url: "https://github.com/elixir-circuits/circuits_spi",
+      source_url: @source_url,
       compilers: [:elixir_make | Mix.compilers()],
       make_targets: ["all"],
       make_clean: ["clean"],
@@ -43,10 +44,11 @@ defmodule Circuits.SPI.MixProject do
         "README.md",
         "PORTING.md",
         "LICENSE",
+        "CHANGELOG.md",
         "Makefile"
       ],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/elixir-circuits/circuits_spi"}
+      links: %{"GitHub" => @source_url}
     }
   end
 
@@ -71,7 +73,7 @@ defmodule Circuits.SPI.MixProject do
       extras: ["README.md", "PORTING.md"],
       main: "readme",
       source_ref: "v#{@version}",
-      source_url: "https://github.com/elixir-circuits/circuits_spi"
+      source_url: @source_url
     ]
   end
 
