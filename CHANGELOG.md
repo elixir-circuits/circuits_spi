@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4
+
+This release doesn't functionally change any code. The only updates are to build
+files for consistency with other Circuits projects.
+
 ## v0.1.3
 
 * Bug fixes
