@@ -106,6 +106,18 @@ project](https://github.com/cdsteinkuehler/beaglebone-universal-io) to enable
 the SPI pins. On other ARM boards, double check that SPI is enabled in the
 kernel and that the device tree configures it.
 
+### How do I set the speed of the SPI bus?
+
+SPI bus options like frequency (`:speed_hz`) and bits per word (`:bit_per_word`)
+are set as optional parameters to
+[`Circuits.SPI.open/2`](https://hexdocs.pm/circuits_spi/Circuits.SPI.html#open/2).
+
+For example, the following configures the SPI bus to run at 122,000 Hz:
+
+```elixir
+{:ok, ref} = Circuits.SPI.open("spidev0.0", speed_hz: 122000)`
+```
+
 ### Where can I get help?
 
 Many issues are unrelated to `Circuits.SPI`. If you expand your searches to
