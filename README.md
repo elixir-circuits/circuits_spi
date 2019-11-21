@@ -36,13 +36,6 @@ of the time, the protocol used across the SPI bus has a request followed by a
 response and in these cases, bits going the "wrong" direction are ignored. This
 will become more clear in the example below.
 
-### Documentation & Options 
-
-The documentation can be found on [HexDocs](https://hexdocs.pm/circuits_spi/readme.html). SPI Bus options like setting the SPI frequency (`:speed_hz`) or bits per word (`:bit_per_word`) can be found on the [Circuits.SPI
- API page](https://hexdocs.pm/circuits_spi/Circuits.SPI.html).
-
-Configuring the SPI bus to run at 100_000 Hz would done using `{:ok, ref} = Circuits.SPI.open("spidev0.0", speed_hz: 100_000)`. See below for a complete example of using `Circuits.SPI.open`. 
-
 ### Example 
 
 The following shows an example Analog to Digital Converter (ADC) that reads from
@@ -134,6 +127,13 @@ hardware actually does, but here's one example:
 * [Compiling and testing Elixir Nerves on your host machine](http://www.cultivatehq.com/posts/compiling-and-testing-elixir-nerves-on-your-host-machine/)
 
 Please share other examples if you have them.
+
+### How do I set the speed of the SPI bus?
+
+More SPI Bus options including setting the SPI frequency (`:speed_hz`) or bits per word (`:bit_per_word`) can be found at the [Circuits.SPI
+ API page](https://hexdocs.pm/circuits_spi/Circuits.SPI.html).
+
+For example, configuring the SPI bus to run at 122_000 Hz would done using `{:ok, ref} = Circuits.SPI.open("spidev0.0", speed_hz: 122000)`. 
 
 ### Will it run on Arduino?
 
