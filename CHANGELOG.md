@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.5
+
+* Bug fixes
+  * Add -fPIC to compilation flags to fix build with `nerves_system_x86_64` and
+    other environments using the Musl C toolchains
+
 ## v0.1.4
 
 This release doesn't functionally change any code. The only updates are to build
