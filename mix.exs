@@ -70,7 +70,7 @@ defmodule Circuits.SPI.MixProject do
 
   defp docs do
     [
-      extras: ["README.md", "PORTING.md"],
+      extras: ["README.md", "PORTING.md", "CHANGELOG.md"],
       main: "readme",
       source_ref: "v#{@version}",
       source_url: @source_url
