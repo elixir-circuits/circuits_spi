@@ -30,8 +30,8 @@ A [Serial Peripheral
 Interface](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus) (SPI)
 bus is a common multi-wire bus used to connect components on a circuit board. A
 clock line drives the timing of sending bits between components. Bits on the
-Master Out Slave In `MOSI` line go from the master (usually the processor
-running Linux) to the slave, and bits on the Master In Slave Out `MISO` line go
+Controller Out Peripheral In `COPI` line go from the controller (usually the processor
+running Linux) to the peripheral, and bits on the Controller In Peripheral Out `CIPO` line go
 the other direction. Bits transfer both directions simultaneously. However, much
 of the time, the protocol used across the SPI bus has a request followed by a
 response and in these cases, bits going the "wrong" direction are ignored. This
