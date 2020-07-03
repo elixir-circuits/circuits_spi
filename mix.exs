@@ -25,7 +25,12 @@ defmodule Circuits.SPI.MixProject do
       dialyzer: [
         flags: [:unmatched_returns, :error_handling, :race_conditions, :underspecs]
       ],
-      deps: deps(@elixir_version)
+      deps: deps(@elixir_version),
+      preferred_cli_env: %{
+        docs: :docs,
+        "hex.publish": :docs,
+        "hex.build": :docs
+      }
     ]
   end
 
@@ -54,8 +59,8 @@ defmodule Circuits.SPI.MixProject do
 
   defp deps(elixir_version) when elixir_version >= {1, 7, 0} do
     [
-      {:ex_doc, "~> 0.11", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.6", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
+      {:dialyxir, "~> 1.0.0", only: :dev, runtime: false}
       | deps()
     ]
   end
