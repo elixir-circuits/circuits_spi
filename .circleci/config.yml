@@ -26,11 +26,11 @@ defaults: &defaults
   working_directory: ~/repo
 
 jobs:
-  build_elixir_1_11_otp_23:
+  build_elixir_1_12_otp_24:
     docker:
-      - image: erlang:23.1
+      - image: erlang:24.0
         environment:
-          ELIXIR_VERSION: 1.11.0-otp-23
+          ELIXIR_VERSION: 1.12.0-rc.1-otp-23
           LC_ALL: C.UTF-8
     <<: *defaults
     steps:
@@ -43,7 +43,6 @@ jobs:
             - v1-mix-cache-{{ checksum "mix.lock" }}
       - run: mix deps.get
       - run: mix format --check-formatted
-      - run: mix compile
       - run: mix docs
       - run: mix hex.build
       - run: mix test
@@ -53,6 +52,21 @@ jobs:
           paths:
             - _build
             - deps
+
+  build_elixir_1_11_otp_23:
+    docker:
+      - image: erlang:23.1
+        environment:
+          ELIXIR_VERSION: 1.11.0-otp-23
+          LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_system_deps
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get
+      - run: mix test
 
   build_elixir_1_10_otp_23:
     docker:
@@ -67,7 +81,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_10_otp_22:
@@ -83,7 +96,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_9_otp_22:
@@ -99,7 +111,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_8_otp_22:
@@ -115,7 +126,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_7_otp_21:
@@ -131,7 +141,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_6_otp_20:
@@ -147,7 +156,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: mix test
 
   build_elixir_1_5_otp_20:
@@ -163,7 +171,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: MIX_ENV=test mix compile
       - run: mix test
 
@@ -180,7 +187,6 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - run: mix deps.get
-      - run: mix compile
       - run: MIX_ENV=test mix compile
       - run: mix test
 
@@ -188,6 +194,7 @@ workflows:
   version: 2
   build_test:
     jobs:
+      - build_elixir_1_12_otp_24
       - build_elixir_1_11_otp_23
       - build_elixir_1_10_otp_23
       - build_elixir_1_10_otp_22
