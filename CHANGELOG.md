@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.6
+
+This release only has doc and build output cleanup. No code has changed.
+
 ## v0.1.5
 
 * Bug fixes
