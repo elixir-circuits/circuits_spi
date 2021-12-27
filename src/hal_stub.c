@@ -18,12 +18,20 @@
 
 #include "spi_nif.h"
 #include <string.h>
+#include <sys/types.h>
 
 ERL_NIF_TERM hal_info(ErlNifEnv *env)
 {
     ERL_NIF_TERM info = enif_make_new_map(env);
     enif_make_map_put(env, info, enif_make_atom(env, "name"), enif_make_atom(env, "stub"), &info);
     return info;
+}
+
+ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
+{
+    uint64_t max = 0;
+    max -= 1;
+    return enif_make_uint64(env, max);
 }
 
 int hal_spi_open(const char *device,

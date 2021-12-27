@@ -88,6 +88,14 @@ defmodule Circuits.SPI do
   @spec info() :: map()
   defdelegate info(), to: Nif
 
+  @doc """
+  Return max buffer size of the low level SPI interface
+
+  This may be helpful when deciding transfer size.
+  """
+  @spec max_buf_size() :: integer()
+  defdelegate max_buf_size(), to: Nif
+
   defmodule :circuits_spi do
     @moduledoc """
     Provide an Erlang friendly interface to Circuits

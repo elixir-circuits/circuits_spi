@@ -18,6 +18,7 @@
 
 #include "spi_nif.h"
 #include <linux/spi/spidev.h>
+#include <sys/types.h>
 
 #ifndef _IOC_SIZE_BITS
 // Include <asm/ioctl.h> manually on platforms that don't include it
@@ -30,6 +31,36 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
     ERL_NIF_TERM info = enif_make_new_map(env);
     enif_make_map_put(env, info, enif_make_atom(env, "name"), enif_make_atom(env, "spidev"), &info);
     return info;
+}
+
+ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
+{
+    static int cached = 0;
+    static ERL_NIF_TERM max_buf_size;
+    uint64_t bufsiz;
+
+    // use cached max_buf_size
+    if (cached != 0) {
+        return max_buf_size;
+    }
+
+    // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
+    FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
+    if (file != NULL) {
+        fscanf(file, "%llu", &bufsiz);
+        fclose(file);
+        cached = 1;
+    }
+
+    if (bufsiz == 0) {
+        // if /sys/module/spidev/parameters/bufsiz is not available
+        // then we return a default value
+        max_buf_size = enif_make_uint64(env, 65536);
+    } else {
+        max_buf_size = enif_make_uint64(env, bufsiz);
+    }
+
+    return max_buf_size;
 }
 
 int hal_spi_open(const char *device,
