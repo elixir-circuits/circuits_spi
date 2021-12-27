@@ -19,6 +19,7 @@
 #include "spi_nif.h"
 #include <linux/spi/spidev.h>
 #include <sys/types.h>
+#include <inttypes.h>
 
 #ifndef _IOC_SIZE_BITS
 // Include <asm/ioctl.h> manually on platforms that don't include it
@@ -47,7 +48,7 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
     // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
     FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
     if (file != NULL) {
-        fscanf(file, "%llu", &bufsiz);
+        fscanf(file, "%"PRIu64, &bufsiz);
         fclose(file);
         cached = 1;
     }
