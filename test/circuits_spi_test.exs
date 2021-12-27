@@ -8,10 +8,13 @@ defmodule CircuitsSPITest do
     assert Map.has_key?(info, :name)
   end
 
-  test "max buffer size returns an non-negative integer" do
-    max_buf_size = Circuits.SPI.max_buf_size()
-
-    assert is_integer(max_buf_size)
-    assert (max_buf_size >= 0)
+  test "max buffer size returns an non-negative integer or :unknown" do
+    case Circuits.SPI.max_buf_size()
+    do
+        :unknown -> true
+        max_buf_size ->
+          assert is_integer(max_buf_size)
+          assert (max_buf_size >= 0)
+    end
   end
 end

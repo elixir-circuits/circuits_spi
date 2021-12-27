@@ -93,7 +93,7 @@ defmodule Circuits.SPI do
 
   This may be helpful when deciding transfer size.
   """
-  @spec max_buf_size() :: integer()
+  @spec max_buf_size() :: integer() | :unknown
   defdelegate max_buf_size(), to: Nif
 
   defmodule :circuits_spi do

@@ -54,8 +54,8 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
 
     if (bufsiz == 0) {
         // if /sys/module/spidev/parameters/bufsiz is not available
-        // then we return a default value
-        max_buf_size = enif_make_uint64(env, 65536);
+        // then we return :unknown
+        max_buf_size = enif_make_atom(env, "unknown");
     } else {
         max_buf_size = enif_make_uint64(env, bufsiz);
     }
