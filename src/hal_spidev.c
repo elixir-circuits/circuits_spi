@@ -36,22 +36,15 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
 
 ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
 {
-    static int cached = 0;
-    static ERL_NIF_TERM max_buf_size;
-    uint64_t bufsiz;
-
-    // use cached max_buf_size
-    if (cached != 0) {
-        return max_buf_size;
-    }
+    ERL_NIF_TERM max_buf_size;
+    uint64_t bufsiz = 0;
 
     // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
     FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
     if (file != NULL) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-        fscanf(file, "%"PRIu64, &bufsiz);
-#pragma GCC diagnostic pop
+        if (fscanf(file, "%"PRIu64, &bufsiz) != 1) {
+            bufsiz = 0;
+        }
         fclose(file);
     }
 
@@ -61,7 +54,6 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
         max_buf_size = enif_make_atom(env, "unknown");
     } else {
         max_buf_size = enif_make_uint64(env, bufsiz);
-        cached = 1;
     }
 
     return max_buf_size;

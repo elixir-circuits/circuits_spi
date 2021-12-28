@@ -187,7 +187,7 @@ static ErlNifFunc nif_funcs[] =
     {"transfer", 3, spi_transfer, 0},
     {"close", 1, spi_close, 0},
     {"info", 0, spi_info, 0},
-    {"max_buf_size", 0, spi_max_buf_size, 0}
+    {"max_buf_size", 0, spi_max_buf_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
 };
 
 ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
