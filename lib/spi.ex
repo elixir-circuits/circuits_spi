@@ -53,7 +53,7 @@ defmodule Circuits.SPI do
   """
   @spec transfer(spi_bus(), binary()) :: {:ok, binary()} | {:error, term()}
   def transfer(spi_bus, data) do
-    Nif.transfer(spi_bus, data, nil)
+    Nif.transfer(spi_bus, data)
   end
 
   @doc """
