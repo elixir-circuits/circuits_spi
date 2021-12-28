@@ -100,11 +100,18 @@ defmodule Circuits.SPI do
   defdelegate info(), to: Nif
 
   @doc """
-  Return max buffer size of the low level SPI interface
+  Return the maximum transfer size in bytes
 
-  This may be helpful when deciding transfer size.
+  The number of bytes that can be sent and received at a time
+  may be capped by the low level SPI interface. For example,
+  the Linux `spidev` driver allocates its transfer buffer at
+  initialization based on the `bufsiz` parameter and rejects
+  requests that won't fit.
+
+  If you're sending large amounts of data over SPI, use this
+  function to determine how to split up large messages.
   """
-  @spec max_buf_size() :: integer() | :unknown
+  @spec max_buf_size() :: non_neg_integer()
   defdelegate max_buf_size(), to: Nif
 
   defmodule :circuits_spi do
