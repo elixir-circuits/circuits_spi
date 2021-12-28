@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.1.0 - 10-20-2021
+
+* Updates
+  * Add `max_transfer_size/0` to return the low level maximum size that can be
+    sent at a time. Thanks to @cocoa-xu for this.
+
+* Bug fixes
+  * Properly mark NIF transfer function as IO bound so that the Erlang scheduler
+    schedules it properly.
+
 ## v1.0.0 - 10-20-2021
 
 This release only changes the version number. No code has changed.
