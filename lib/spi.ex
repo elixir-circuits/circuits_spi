@@ -57,17 +57,6 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Perform a SPI transfer. The `data` should be a binary containing the bytes to
-  send. The `chunk_size` specifies maximum number of bytes to be sent in a single
-  transfer. Since SPI transfers simultaneously send and receive, the return value
-  will be a binary of the same length or an error.
-  """
-  @spec transfer(spi_bus(), binary(), non_neg_integer()) :: {:ok, binary()} | {:error, term()}
-  def transfer(spi_bus, data, chunk_size) do
-    Nif.transfer(spi_bus, data, chunk_size)
-  end
-
-  @doc """
   Release any resources associated with the given file descriptor
   """
   @spec close(spi_bus()) :: :ok
