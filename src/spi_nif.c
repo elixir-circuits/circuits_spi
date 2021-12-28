@@ -169,12 +169,18 @@ static ERL_NIF_TERM spi_info(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     return hal_info(env);
 }
 
+static ERL_NIF_TERM spi_max_transfer_size(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    return hal_max_transfer_size(env);
+}
+
 static ErlNifFunc nif_funcs[] =
 {
     {"open", 5, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"transfer", 2, spi_transfer, 0},
     {"close", 1, spi_close, 0},
-    {"info", 0, spi_info, 0}
+    {"info", 0, spi_info, 0},
+    {"max_transfer_size", 0, spi_max_transfer_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
 };
 
 ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)

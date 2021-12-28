@@ -88,6 +88,21 @@ defmodule Circuits.SPI do
   @spec info() :: map()
   defdelegate info(), to: Nif
 
+  @doc """
+  Return the maximum transfer size in bytes
+
+  The number of bytes that can be sent and received at a time
+  may be capped by the low level SPI interface. For example,
+  the Linux `spidev` driver allocates its transfer buffer at
+  initialization based on the `bufsiz` parameter and rejects
+  requests that won't fit.
+
+  If you're sending large amounts of data over SPI, use this
+  function to determine how to split up large messages.
+  """
+  @spec max_transfer_size() :: non_neg_integer()
+  defdelegate max_transfer_size(), to: Nif
+
   defmodule :circuits_spi do
     @moduledoc """
     Provide an Erlang friendly interface to Circuits
