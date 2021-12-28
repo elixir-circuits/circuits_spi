@@ -77,12 +77,14 @@ void hal_spi_close(int fd);
  * @param to_write
  * @param to_read
  * @param len
+ * @param chunk_size
  * @return
  */
 int hal_spi_transfer(int fd,
                      const struct SpiConfig *config,
                      const uint8_t *to_write,
                      uint8_t *to_read,
-                     size_t len);
+                     size_t len,
+                     size_t chunk_size);
 
 #endif // SPI_NIF_H

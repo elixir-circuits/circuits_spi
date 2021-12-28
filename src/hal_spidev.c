@@ -48,7 +48,10 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
     // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
     FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
     if (file != NULL) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
         fscanf(file, "%"PRIu64, &bufsiz);
+#pragma GCC diagnostic pop
         fclose(file);
         cached = 1;
     }
@@ -110,7 +113,8 @@ int hal_spi_transfer(int fd,
                      const struct SpiConfig *config,
                      const uint8_t *to_write,
                      uint8_t *to_read,
-                     size_t len)
+                     size_t len,
+                     size_t chunk_size)
 {
     struct spi_ioc_transfer tfer;
 
@@ -123,10 +127,27 @@ int hal_spi_transfer(int fd,
     // but pointers on Raspberry Pi are only 32 bits.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
-    tfer.tx_buf = (__u64) to_write;
-    tfer.rx_buf = (__u64) to_read;
-#pragma GCC diagnostic pop
-    tfer.len = (uint32_t) len;
 
-    return ioctl(fd, SPI_IOC_MESSAGE(1), &tfer);
+    size_t left = len;
+    size_t offset = 0;
+    while (left > 0) {
+        size_t length = chunk_size < left ? chunk_size : left;
+
+        tfer.tx_buf = ((__u64) to_write + offset);
+        tfer.rx_buf = ((__u64) to_read + offset);
+
+        tfer.len = (uint32_t) length;
+
+        int ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tfer);
+        if (ret < 0) {
+            return ret;
+        } else {
+            left -= length;
+            offset += length;
+        }
+    }
+
+#pragma GCC diagnostic pop
+
+    return 0;
 }

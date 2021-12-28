@@ -126,6 +126,7 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     ErlNifBinary bin_write;
     ERL_NIF_TERM bin_read;
     unsigned char *raw_bin_read;
+    size_t chunk_size;
 
     debug("spi_transfer");
     if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
@@ -134,12 +135,18 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     if (!enif_inspect_binary(env, argv[1], &bin_write))
         return enif_make_badarg(env);
 
+    ErlNifUInt64 u64;
+    if (!enif_get_uint64(env, argv[2], (ErlNifUInt64 *)&u64))
+        chunk_size = bin_write.size;
+    else
+        chunk_size = u64;
+
     raw_bin_read = enif_make_new_binary(env, bin_write.size, &bin_read);
     if (!raw_bin_read)
         return enif_make_tuple2(env, priv->atom_error,
                                 enif_make_atom(env, "alloc_failed"));
 
-    if (hal_spi_transfer(res->fd, &res->config, bin_write.data, raw_bin_read, bin_write.size) < 0)
+    if (hal_spi_transfer(res->fd, &res->config, bin_write.data, raw_bin_read, bin_write.size, chunk_size) < 0)
         return enif_make_tuple2(env, priv->atom_error,
                                 enif_make_atom(env, "transfer_failed"));
 
@@ -177,7 +184,7 @@ static ERL_NIF_TERM spi_max_buf_size(ErlNifEnv *env, int argc, const ERL_NIF_TER
 static ErlNifFunc nif_funcs[] =
 {
     {"open", 5, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
-    {"transfer", 2, spi_transfer, 0},
+    {"transfer", 3, spi_transfer, 0},
     {"close", 1, spi_close, 0},
     {"info", 0, spi_info, 0},
     {"max_buf_size", 0, spi_max_buf_size, 0}
