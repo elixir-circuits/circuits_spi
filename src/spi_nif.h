@@ -46,12 +46,12 @@ struct SpiConfig {
 ERL_NIF_TERM hal_info(ErlNifEnv *env);
 
 /**
- * Return max buffer size about the HAL.
+ * Return max transfer size about the HAL.
  *
  * This should return an unsigned 64-bit int value that indicates the
- * max buffer size in bytes
+ * maximum transfer size in bytes
  */
-ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env);
+ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env);
 
 /**
  * Open an SPI device

@@ -27,11 +27,10 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
     return info;
 }
 
-ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
+ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 {
-    uint64_t max = 0;
-    max -= 1;
-    return enif_make_uint64(env, max);
+    // Use Linux's default maximum transfer size
+    return enif_make_uint64(env, 4096);
 }
 
 int hal_spi_open(const char *device,

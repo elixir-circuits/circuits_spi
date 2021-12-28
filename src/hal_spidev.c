@@ -34,9 +34,8 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
     return info;
 }
 
-ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
+ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 {
-    ERL_NIF_TERM max_buf_size;
     uint64_t bufsiz = 0;
 
     // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
@@ -51,12 +50,10 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
     if (bufsiz == 0) {
         // if /sys/module/spidev/parameters/bufsiz is not available
         // then we return 4096, a safe minimum size
-        max_buf_size = enif_make_uint64(env, 4096);
-    } else {
-        max_buf_size = enif_make_uint64(env, bufsiz);
+        bufsiz = 4096;
     }
 
-    return max_buf_size;
+    return enif_make_uint64(env, bufsiz);
 }
 
 int hal_spi_open(const char *device,

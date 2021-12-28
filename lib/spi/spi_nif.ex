@@ -25,7 +25,7 @@ defmodule Circuits.SPI.Nif do
     :erlang.nif_error(:nif_not_loaded)
   end
 
-  def max_buf_size() do
+  def max_transfer_size() do
     :erlang.nif_error(:nif_not_loaded)
   end
 end

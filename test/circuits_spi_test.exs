@@ -9,8 +9,8 @@ defmodule CircuitsSPITest do
   end
 
   test "max buffer size returns an non-negative integer" do
-    max_buf_size = Circuits.SPI.max_buf_size()
-    assert is_integer(max_buf_size)
-    assert max_buf_size >= 0
+    max_transfer_size = Circuits.SPI.max_transfer_size()
+    assert is_integer(max_transfer_size)
+    assert max_transfer_size >= 0
   end
 end

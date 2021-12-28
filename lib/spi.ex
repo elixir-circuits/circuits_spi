@@ -100,8 +100,8 @@ defmodule Circuits.SPI do
   If you're sending large amounts of data over SPI, use this
   function to determine how to split up large messages.
   """
-  @spec max_buf_size() :: non_neg_integer()
-  defdelegate max_buf_size(), to: Nif
+  @spec max_transfer_size() :: non_neg_integer()
+  defdelegate max_transfer_size(), to: Nif
 
   defmodule :circuits_spi do
     @moduledoc """
