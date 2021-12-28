@@ -122,7 +122,6 @@ defmodule Circuits.SPI do
     defdelegate open(bus_name), to: Circuits.SPI
     defdelegate open(bus_name, spi_opts), to: Circuits.SPI
     defdelegate transfer(ref, data), to: Circuits.SPI
-    defdelegate transfer(ref, data, chunk_size), to: Circuits.SPI
     defdelegate close(ref), to: Circuits.SPI
   end
 end

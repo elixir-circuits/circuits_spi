@@ -50,8 +50,7 @@ int hal_spi_transfer(int fd,
                      const struct SpiConfig *config,
                      const uint8_t *to_write,
                      uint8_t *to_read,
-                     size_t len,
-                     size_t chunk_size)
+                     size_t len)
 {
     // Loop back.
     memcpy(to_read, to_write, len);
