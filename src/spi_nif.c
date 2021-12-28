@@ -177,7 +177,7 @@ static ERL_NIF_TERM spi_max_transfer_size(ErlNifEnv *env, int argc, const ERL_NI
 static ErlNifFunc nif_funcs[] =
 {
     {"open", 5, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
-    {"transfer", 2, spi_transfer, 0},
+    {"transfer", 2, spi_transfer, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"close", 1, spi_close, 0},
     {"info", 0, spi_info, 0},
     {"max_transfer_size", 0, spi_max_transfer_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
