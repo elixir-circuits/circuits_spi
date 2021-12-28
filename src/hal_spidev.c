@@ -53,7 +53,6 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
         fscanf(file, "%"PRIu64, &bufsiz);
 #pragma GCC diagnostic pop
         fclose(file);
-        cached = 1;
     }
 
     if (bufsiz == 0) {
@@ -62,6 +61,7 @@ ERL_NIF_TERM hal_max_buf_size(ErlNifEnv *env)
         max_buf_size = enif_make_atom(env, "unknown");
     } else {
         max_buf_size = enif_make_uint64(env, bufsiz);
+        cached = 1;
     }
 
     return max_buf_size;
