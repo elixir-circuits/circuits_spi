@@ -34,7 +34,7 @@ defmodule Circuits.SPI do
   many devices.
 
   Parameters:
-  * `bus_name` is the name of the bus (e.g., "spidev0.0")
+  * `bus_name` is the name of the bus (e.g., "spidev0.0"). See `bus_names/0`
   * `opts` is a keyword list to configure the bus
 
   SPI bus options include:
