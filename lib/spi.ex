@@ -23,19 +23,31 @@ defmodule Circuits.SPI do
   @type spi_bus() :: reference()
 
   @doc """
-  Open SPI channel
-  On success, returns a reference.
-  Use reference in subsequent calls to transfer SPI bus data
+  Open a SPI bus device
+
+  On success, `open/2` returns a reference that may be passed to
+  with `transfer/2`. The device will be closed automatically when
+  the reference goes out of scope.
+
+  SPI is not a standardized interface so appropriate options will
+  different from device-to-device. The defaults use here work on
+  many devices.
 
   Parameters:
   * `bus_name` is the name of the bus (e.g., "spidev0.0")
   * `opts` is a keyword list to configure the bus
 
   SPI bus options include:
-  * `mode`: This specifies the clock polarity and phase to use. (0)
-  * `bits_per_word`: bits per word on the bus (8)
-  * `speed_hz`: bus speed (1000000)
-  * `delay_us`: delay between transaction (10)
+  * `mode` - Set the clock polarity and phase to use:
+    * Mode 0 (CPOL=0, CPHA=0) - Clock idle low/sample leading edge (default)
+    * Mode 1 (CPOL=0, CPHA=1) - Clock idle low/sample trailing edge
+    * Mode 2 (CPOL=1, CPHA=0) - Clock idle high/sample leading edge
+    * Mode 3 (CPOL=1, CPHA=1) - Clock idle high/sample trailing edge
+  * `bits_per_word` - Set the bits per word on the bus. Defaults to 8 bit words.
+  * `speed_hz` - Set the bus speed. The default bus speed and supported
+    speeds are device-specific. The default speed on a Raspberry Pi is
+    1 Mbps (1000000).
+  * `delay_us` - Set the delay between transactions (10)
   """
   @spec open(binary() | charlist(), [spi_option()]) :: {:ok, spi_bus()}
   def open(bus_name, opts \\ []) do
