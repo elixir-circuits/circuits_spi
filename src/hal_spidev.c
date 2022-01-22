@@ -60,10 +60,14 @@ int hal_spi_open(const char *device,
                  const struct SpiConfig *config,
                  char *error_str)
 {
-    char devpath[64] = "/dev/";
+    const char *device_path = device;
 
-    strcat(devpath, device);
-    int fd = open(devpath, O_RDWR);
+    char buffer[64] = "/dev/";
+    if (strncmp(device, "/dev/", 5) != 0) {
+        strncat(buffer, device, sizeof(buffer) - 1);
+        device_path = buffer;
+    }
+    int fd = open(device_path, O_RDWR);
     if (fd < 0) {
         strcpy(error_str, "access_denied");
         return -1;
