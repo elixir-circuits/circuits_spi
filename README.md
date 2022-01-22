@@ -118,6 +118,10 @@ For example, the following configures the SPI bus to run at 122,000 Hz:
 {:ok, ref} = Circuits.SPI.open("spidev0.0", speed_hz: 122000)`
 ```
 
+The ability to set the bus speed is device-specific. Please verify with a logic
+analyzer that the speed is actually being set and consult the documentation for
+limitations.
+
 ### Where can I get help?
 
 Many issues are unrelated to `Circuits.SPI`. If you expand your searches to
