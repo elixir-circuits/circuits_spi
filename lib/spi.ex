@@ -11,7 +11,7 @@ defmodule Circuits.SPI do
   """
   @type spi_option() ::
           {:mode, 0..3}
-          | {:bits_per_word, 0..16}
+          | {:bits_per_word, 8..16}
           | {:speed_hz, pos_integer()}
           | {:delay_us, non_neg_integer()}
 
@@ -20,7 +20,7 @@ defmodule Circuits.SPI do
   """
   @type spi_option_map() :: %{
           mode: 0..3,
-          bits_per_word: 0..16,
+          bits_per_word: 8..16,
           speed_hz: pos_integer(),
           delay_us: non_neg_integer()
         }
