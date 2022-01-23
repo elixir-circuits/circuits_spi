@@ -44,4 +44,15 @@ defmodule CircuitsSPITest do
 
     assert result == @test_data
   end
+
+  test "iodata transfers work" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+
+    message = ["Hello", [1, 2, 3, @test_data]]
+    expected = IO.iodata_to_binary(message)
+
+    {:ok, result} = Circuits.SPI.transfer(spi, message)
+
+    assert result == expected
+  end
 end
