@@ -1,6 +1,9 @@
 defmodule CircuitsSPITest do
   use ExUnit.Case
 
+  # All possible byte values needed for lsb <-> msb test
+  @test_data :binary.list_to_bin(for i <- 0..255, do: i)
+
   test "info returns a map" do
     info = Circuits.SPI.info()
 
@@ -22,5 +25,23 @@ defmodule CircuitsSPITest do
     assert config.bits_per_word == 8
     assert config.delay_us == 10
     assert config.speed_hz == 1_000_000
+    assert config.lsb_first == false
+    assert config.sw_lsb_first == false
+  end
+
+  test "transfers loop back using stub" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev")
+
+    {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
+
+    assert result == @test_data
+  end
+
+  test "transfers loop back using stub and lsb_first" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+
+    {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
+
+    assert result == @test_data
   end
 end

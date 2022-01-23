@@ -38,6 +38,10 @@ int hal_spi_open(const char *device,
                  char *error_str)
 {
     *error_str = '\0';
+
+    // If reversing the bits, then request that it's done in software
+    config->sw_lsb_first = config->lsb_first;
+
     return 0;
 }
 

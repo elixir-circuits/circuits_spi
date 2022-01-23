@@ -102,6 +102,12 @@ int hal_spi_open(const char *device,
         config->speed_hz = speed_hz;
     }
 
+    uint32_t lsb_first = config->lsb_first;
+    if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &lsb_first) < 0) {
+        // If not supported by hardware, reverse bits in software
+        config->sw_lsb_first = config->lsb_first;
+    }
+
     return fd;
 }
 
