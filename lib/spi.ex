@@ -14,15 +14,21 @@ defmodule Circuits.SPI do
           | {:bits_per_word, 8..16}
           | {:speed_hz, pos_integer()}
           | {:delay_us, non_neg_integer()}
+          | {:lsb_first, boolean()}
 
   @typedoc """
   SPI bus options as returned by `config/1`.
+
+  These mirror the options that can be passed to `open/2`. `:sw_lsb_first`
+  is set if `:lsb_first` is true, but Circuits.SPI is doing this in software.
   """
   @type spi_option_map() :: %{
           mode: 0..3,
           bits_per_word: 8..16,
           speed_hz: pos_integer(),
-          delay_us: non_neg_integer()
+          delay_us: non_neg_integer(),
+          lsb_first: boolean(),
+          sw_lsb_first: boolean()
         }
 
   @typedoc """
@@ -66,7 +72,9 @@ defmodule Circuits.SPI do
     bits_per_word = Keyword.get(opts, :bits_per_word, 8)
     speed_hz = Keyword.get(opts, :speed_hz, 1_000_000)
     delay_us = Keyword.get(opts, :delay_us, 10)
-    Nif.open(to_charlist(bus_name), mode, bits_per_word, speed_hz, delay_us)
+    lsb_first = if Keyword.get(opts, :lsb_first), do: 1, else: 0
+
+    Nif.open(to_charlist(bus_name), mode, bits_per_word, speed_hz, delay_us, lsb_first)
   end
 
   @doc """
@@ -77,7 +85,9 @@ defmodule Circuits.SPI do
   """
   @spec config(spi_bus()) :: {:ok, spi_option_map()} | {:error, term()}
   def config(spi_bus) do
-    Nif.config(spi_bus)
+    with {:ok, config} <- Nif.config(spi_bus) do
+      {:ok, %{config | lsb_first: config.lsb_first != 0, sw_lsb_first: config.sw_lsb_first != 0}}
+    end
   end
 
   @doc """
