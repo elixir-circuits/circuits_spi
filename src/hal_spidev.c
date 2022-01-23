@@ -38,7 +38,7 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 {
     uint64_t bufsiz = 0;
 
-    // Linux put this information (if available) in /sys/module/spidev/parameters/bufsiz
+    // Linux puts this information (if available) in /sys/module/spidev/parameters/bufsiz
     FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
     if (file != NULL) {
         if (fscanf(file, "%"PRIu64, &bufsiz) != 1) {
