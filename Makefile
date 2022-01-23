@@ -8,6 +8,7 @@
 # Variables to override:
 #
 # MIX_APP_PATH  path to the build directory
+# MIX_ENV       Mix build environment - "test" forces use of the stub
 #
 # CC            C compiler
 # CROSSCOMPILE	crosscompiler prefix, if any
@@ -36,6 +37,11 @@ ifeq ($(CROSSCOMPILE),)
     else
         LDFLAGS += -fPIC -shared
         CFLAGS += -fPIC
+    endif
+
+    # Always use the stub when testing
+    ifeq ($(MIX_ENV),test)
+	HAL_SRC = src/hal_stub.c
     endif
 else
 # Crosscompiled build
