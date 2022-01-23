@@ -37,6 +37,11 @@ ifeq ($(CROSSCOMPILE),)
     else
         LDFLAGS += -fPIC -shared
         CFLAGS += -fPIC
+
+	# SPI_IOC_RD_* macros trigger this warning when passed to ioctl on some
+	# Linux/gcc combinations that don't seem to be used when crosscompiling
+	# with Nerves, so disable.
+	CFLAGS += -Wno-overflow
     endif
 
     # Always use the stub when testing
