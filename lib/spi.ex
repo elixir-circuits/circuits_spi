@@ -64,7 +64,7 @@ defmodule Circuits.SPI do
   will be a binary of the same length or an error.
   """
   @spec transfer(spi_bus(), binary()) :: {:ok, binary()} | {:error, term()}
-  def transfer(spi_bus, data) do
+  def transfer(spi_bus, data) when is_binary(data) do
     Nif.transfer(spi_bus, data)
   end
 
