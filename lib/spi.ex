@@ -9,11 +9,21 @@ defmodule Circuits.SPI do
   @typedoc """
   SPI bus options. See `open/2`.
   """
-  @type spi_option ::
+  @type spi_option() ::
           {:mode, 0..3}
           | {:bits_per_word, 0..16}
           | {:speed_hz, pos_integer()}
           | {:delay_us, non_neg_integer()}
+
+  @typedoc """
+  SPI bus options as returned by `config/1`.
+  """
+  @type spi_option_map() :: %{
+          mode: 0..3,
+          bits_per_word: 0..16,
+          speed_hz: pos_integer(),
+          delay_us: non_neg_integer()
+        }
 
   @typedoc """
   SPI bus
@@ -44,18 +54,30 @@ defmodule Circuits.SPI do
     * Mode 2 (CPOL=1, CPHA=0) - Clock idle high/sample leading edge
     * Mode 3 (CPOL=1, CPHA=1) - Clock idle high/sample trailing edge
   * `bits_per_word` - Set the bits per word on the bus. Defaults to 8 bit words.
-  * `speed_hz` - Set the bus speed. The default bus speed and supported
-    speeds are device-specific. The default speed on a Raspberry Pi is
-    1 Mbps (1000000).
+  * `speed_hz` - Set the bus speed. Supported speeds are device-specific. The
+    default speed is 1 Mbps (1000000).
   * `delay_us` - Set the delay between transactions (10)
+  * `lsb_first` - Set to `true` to send the least significant bit first rather
+    than the most significant one. (false)
   """
-  @spec open(binary() | charlist(), [spi_option()]) :: {:ok, spi_bus()}
+  @spec open(binary() | charlist(), [spi_option()]) :: {:ok, spi_bus()} | {:error, term()}
   def open(bus_name, opts \\ []) do
     mode = Keyword.get(opts, :mode, 0)
     bits_per_word = Keyword.get(opts, :bits_per_word, 8)
     speed_hz = Keyword.get(opts, :speed_hz, 1_000_000)
     delay_us = Keyword.get(opts, :delay_us, 10)
     Nif.open(to_charlist(bus_name), mode, bits_per_word, speed_hz, delay_us)
+  end
+
+  @doc """
+  Return the configuration for this SPI bus
+
+  The configuration could be different that what was given to `open/2` if
+  the device had to change it for it to work.
+  """
+  @spec config(spi_bus()) :: {:ok, spi_option_map()} | {:error, term()}
+  def config(spi_bus) do
+    Nif.config(spi_bus)
   end
 
   @doc """

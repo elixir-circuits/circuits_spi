@@ -56,12 +56,17 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env);
 /**
  * Open an SPI device
  *
+ * This sets the configuration and reads it back in case the
+ * implementation adjusts a value.
+ *
  * @param device the name of the SPI device
+ * @param config the SPI configuration
+ * @param error_str a message to return on error
  *
  * @return <0 on error or a handle on success
  */
 int hal_spi_open(const char *device,
-                 const struct SpiConfig *config,
+                 struct SpiConfig *config,
                  char *error_str);
 
 /**

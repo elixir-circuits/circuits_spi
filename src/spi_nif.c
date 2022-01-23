@@ -118,6 +118,24 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     return enif_make_tuple2(env, priv->atom_ok, res_term);
 }
 
+static ERL_NIF_TERM spi_config(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    struct SpiNifPriv *priv = enif_priv_data(env);
+    struct SpiNifRes *res;
+
+    debug("spi_get_config");
+
+    if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
+        return enif_make_badarg(env);
+
+    ERL_NIF_TERM config = enif_make_new_map(env);
+    enif_make_map_put(env, config, enif_make_atom(env, "mode"), enif_make_uint(env, res->config.mode), &config);
+    enif_make_map_put(env, config, enif_make_atom(env, "bits_per_word"), enif_make_uint(env, res->config.bits_per_word), &config);
+    enif_make_map_put(env, config, enif_make_atom(env, "speed_hz"), enif_make_uint(env, res->config.speed_hz), &config);
+    enif_make_map_put(env, config, enif_make_atom(env, "delay_us"), enif_make_uint(env, res->config.delay_us), &config);
+
+    return enif_make_tuple2(env, priv->atom_ok, config);
+}
 
 static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
@@ -177,6 +195,7 @@ static ERL_NIF_TERM spi_max_transfer_size(ErlNifEnv *env, int argc, const ERL_NI
 static ErlNifFunc nif_funcs[] =
 {
     {"open", 5, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
+    {"config", 1, spi_config, 0},
     {"transfer", 2, spi_transfer, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"close", 1, spi_close, 0},
     {"info", 0, spi_info, 0},

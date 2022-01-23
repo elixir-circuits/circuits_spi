@@ -57,7 +57,7 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 }
 
 int hal_spi_open(const char *device,
-                 const struct SpiConfig *config,
+                 struct SpiConfig *config,
                  char *error_str)
 {
     const char *device_path = device;
@@ -80,11 +80,17 @@ int hal_spi_open(const char *device,
         strcpy(error_str, "invalid_mode");
         return -1;
     }
+    if (ioctl(fd, SPI_IOC_RD_MODE, &mode) == 0) {
+        config->mode = (mode & (SPI_CPHA | SPI_CPOL));
+    }
 
     uint8_t bits_per_word = (uint8_t) config->bits_per_word;
     if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word) < 0) {
         strcpy(error_str, "invalid_bits_per_word");
         return -1;
+    }
+    if (ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits_per_word) == 0) {
+        config->bits_per_word = bits_per_word;
     }
 
     uint32_t speed_hz = config->speed_hz;
@@ -92,10 +98,12 @@ int hal_spi_open(const char *device,
         strcpy(error_str, "invalid_speed");
         return -1;
     }
+    if (ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed_hz) == 0) {
+        config->speed_hz = speed_hz;
+    }
 
     return fd;
 }
-
 
 void hal_spi_close(int fd)
 {
