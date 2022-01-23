@@ -34,7 +34,7 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 }
 
 int hal_spi_open(const char *device,
-                 const struct SpiConfig *config,
+                 struct SpiConfig *config,
                  char *error_str)
 {
     *error_str = '\0';

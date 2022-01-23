@@ -13,4 +13,14 @@ defmodule CircuitsSPITest do
     assert is_integer(max_transfer_size)
     assert max_transfer_size >= 0
   end
+
+  test "config comes back with documented defaults" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev")
+
+    {:ok, config} = Circuits.SPI.config(spi)
+    assert config.mode == 0
+    assert config.bits_per_word == 8
+    assert config.delay_us == 10
+    assert config.speed_hz == 1_000_000
+  end
 end

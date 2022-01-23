@@ -13,6 +13,10 @@ defmodule Circuits.SPI.Nif do
     :erlang.nif_error(:nif_not_loaded)
   end
 
+  def config(_ref) do
+    :erlang.nif_error(:nif_not_loaded)
+  end
+
   def transfer(_ref, _data) do
     :erlang.nif_error(:nif_not_loaded)
   end
