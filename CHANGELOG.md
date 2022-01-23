@@ -1,6 +1,20 @@
 # Changelog
 
-## v1.1.0 - 10-20-2021
+## v1.2.0 - 2022-01-23
+
+* Updates
+  * Add the `:lsb_first` option to support SPI transfers that send the least
+    significant bit first rather than the most significant one. If the bit
+    reversal isn't supported by the hardware, a software version is used.
+  * Add `config/1` to return the configuration for an SPI bus reference. This is
+    useful for checking what is actually being used.
+  * Update `transfer/2` to support `iodata`. This makes the interface more
+    convenient since now you can prepend SPI message headers in your code
+    without having to concatenate binaries.
+  * Support full pathes being passed to SPI devices in `open/2`. Previously this
+    resulted in errors, but it was easy to forget.
+
+## v1.1.0 - 2021-12-28
 
 * Updates
   * Add `max_transfer_size/0` to return the low level maximum size that can be
@@ -10,7 +24,7 @@
   * Properly mark NIF transfer function as IO bound so that the Erlang scheduler
     schedules it properly.
 
-## v1.0.0 - 10-20-2021
+## v1.0.0 - 2021-10-20
 
 This release only changes the version number. No code has changed.
 
