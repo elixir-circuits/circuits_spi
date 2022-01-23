@@ -91,13 +91,21 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Perform a SPI transfer. The `data` should be a binary containing the bytes to
-  send. Since SPI transfers simultaneously send and receive, the return value
-  will be a binary of the same length or an error.
+  Transfer data
+
+  Since each SPI transfer sends and receives simultaneously, the return value
+  will be a binary of the same length as `data`.
   """
-  @spec transfer(spi_bus(), binary()) :: {:ok, binary()} | {:error, term()}
-  def transfer(spi_bus, data) when is_binary(data) do
-    Nif.transfer(spi_bus, data)
+  @spec transfer(spi_bus(), iodata()) :: {:ok, binary()} | {:error, term()}
+  def transfer(spi_bus, data) do
+    # Flatten the iodata here rather than in the NIF.
+    # In theory, this could be done in the NIF and the Linux kernel could do
+    # the reassembly. I'm not 100% sure this is a performance improvement
+    # except possibly for people sending to SPI displays. If you're seeing this
+    # and using a SPI display and using iodata and hitting a performance issue
+    # that's not improved by raising the SPI bus speed, this might be worth
+    # trying.
+    Nif.transfer(spi_bus, IO.iodata_to_binary(data))
   end
 
   @doc """
