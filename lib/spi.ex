@@ -108,6 +108,9 @@ defmodule Circuits.SPI do
     Nif.transfer(spi_bus, IO.iodata_to_binary(data))
   end
 
+  @doc """
+  Transfer data and raise on error
+  """
   @spec transfer!(spi_bus(), iodata()) :: binary()
   def transfer!(spi_bus, data) do
     case transfer(spi_bus, data) do
