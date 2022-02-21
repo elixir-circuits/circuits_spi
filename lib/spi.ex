@@ -109,6 +109,20 @@ defmodule Circuits.SPI do
   end
 
   @doc """
+  Transfer data and raise on error
+  """
+  @spec transfer!(spi_bus(), iodata()) :: binary()
+  def transfer!(spi_bus, data) do
+    case transfer(spi_bus, data) do
+      {:error, reason} ->
+        raise "SPI failure: " <> to_string(reason)
+
+      {:ok, result} ->
+        result
+    end
+  end
+
+  @doc """
   Release any resources associated with the given file descriptor
   """
   @spec close(spi_bus()) :: :ok
