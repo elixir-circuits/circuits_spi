@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.0 - 2022-02-21
+
+* Updates
+  * Add `transfer!/2`. This function is the raising version of `transfer/2`.
+    Thanks to @mnishiguchi for this.
+
 ## v1.2.0 - 2022-01-23
 
 * Updates

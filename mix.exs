@@ -1,7 +1,7 @@
 defmodule Circuits.SPI.MixProject do
   use Mix.Project
 
-  @version "1.2.0"
+  @version "1.3.0"
   @source_url "https://github.com/elixir-circuits/circuits_spi"
 
   {:ok, system_version} = Version.parse(System.version())
