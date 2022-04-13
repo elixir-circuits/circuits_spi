@@ -16,7 +16,7 @@ support, then add `circuits_spi` like any other Elixir library:
 
 ```elixir
 def deps do
-  [{:circuits_spi, "~> 0.1"}]
+  [{:circuits_spi, "~> 1.3"}]
 end
 ```
 
