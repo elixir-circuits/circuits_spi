@@ -88,6 +88,14 @@ and by running `h <<>>` at the IEx prompt.
 
 ## FAQ
 
+### How do I only receive data?
+
+SPI always sends a bit for every bit it receives. That means that to receive a
+byte, you have to send a byte. Luckily, devices are designed with this in mind
+and discard or ignore bytes in these situations. For example, if you have a
+sensors and need to read 9 bytes of data, send 9 zeros to read it. The zeros
+will be ignored and you'll get the data.
+
 ### How do I debug?
 
 The most common issue is communicating with a SPI device for the first time.
