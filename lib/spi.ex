@@ -168,15 +168,4 @@ defmodule Circuits.SPI do
   """
   @spec max_transfer_size() :: non_neg_integer()
   defdelegate max_transfer_size(), to: Nif
-
-  defmodule :circuits_spi do
-    @moduledoc """
-    Provide an Erlang friendly interface to Circuits
-    Example Erlang code:  circuits_spi:open("spidev0.1")
-    """
-    defdelegate open(bus_name), to: Circuits.SPI
-    defdelegate open(bus_name, spi_opts), to: Circuits.SPI
-    defdelegate transfer(ref, data), to: Circuits.SPI
-    defdelegate close(ref), to: Circuits.SPI
-  end
 end

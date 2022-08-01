@@ -160,13 +160,6 @@ Arduino's serial connection or
 [firmata](https://github.com/mobileoverlord/firmata) for communication using the
 Arduino's Firmata protocol.
 
-### How do I call Circuits.SPI from Erlang?
-
-An Erlang friendly binding has been provided to simplify syntax when calling
-`Circuits.SPI` functions from Erlang code.  Instead of prefixing calls with:
-`'Elixir.Circuits.SPI':` you may use the binding: `circuits_spi:`.  For example:
-`circuits_spi:open("spidev0.1")`.
-
 ## License
 
 Code from the library is licensed under the Apache License, Version 2.0.
