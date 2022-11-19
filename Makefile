@@ -32,7 +32,7 @@ ifeq ($(CROSSCOMPILE),)
     ifneq ($(shell uname -s),Linux)
         $(warning Elixir Circuits only works on Nerves and Linux platforms.)
         $(warning A stub NIF will be compiled for test purposes.)
-	HAL_SRC = src/hal_stub.c
+	HAL_SRC = c_src/hal_stub.c
         LDFLAGS += -undefined dynamic_lookup -dynamiclib
     else
         LDFLAGS += -fPIC -shared
@@ -46,7 +46,7 @@ ifeq ($(CROSSCOMPILE),)
 
     # Always use the stub when testing
     ifeq ($(MIX_ENV),test)
-	HAL_SRC = src/hal_stub.c
+	HAL_SRC = c_src/hal_stub.c
     endif
 else
 # Crosscompiled build
@@ -58,10 +58,10 @@ endif
 ERL_CFLAGS ?= -I$(ERL_EI_INCLUDE_DIR)
 ERL_LDFLAGS ?= -L$(ERL_EI_LIBDIR) -lei
 
-HAL_SRC ?= src/hal_spidev.c
-SRC = $(HAL_SRC) src/spi_nif.c
-HEADERS =$(wildcard src/*.h)
-OBJ = $(SRC:src/%.c=$(BUILD)/%.o)
+HAL_SRC ?= c_src/hal_spidev.c
+SRC = $(HAL_SRC) c_src/spi_nif.c
+HEADERS =$(wildcard c_src/*.h)
+OBJ = $(SRC:c_src/%.c=$(BUILD)/%.o)
 
 calling_from_make:
 	mix compile
@@ -72,7 +72,7 @@ install: $(PREFIX) $(BUILD) $(NIF)
 
 $(OBJ): $(HEADERS) Makefile
 
-$(BUILD)/%.o: src/%.c
+$(BUILD)/%.o: c_src/%.c
 	@echo " CC $(notdir $@)"
 	$(CC) -c $(ERL_CFLAGS) $(CFLAGS) -o $@ $<
 

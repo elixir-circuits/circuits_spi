@@ -40,7 +40,7 @@ defmodule Circuits.SPI.MixProject do
     %{
       files: [
         "lib",
-        "src/*.[ch]",
+        "c_src/*.[ch]",
         "mix.exs",
         "README.md",
         "PORTING.md",
@@ -78,7 +78,7 @@ defmodule Circuits.SPI.MixProject do
         Mix.Shell.IO.info("Install astyle to format C code.")
 
       astyle ->
-        System.cmd(astyle, ["-n", "src/*.c"], into: IO.stream(:stdio, :line))
+        System.cmd(astyle, ["-n", "c_src/*.c"], into: IO.stream(:stdio, :line))
     end
   end
 
