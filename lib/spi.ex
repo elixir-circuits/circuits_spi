@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth, Mark Sebald
+#
+# SPDX-License-Identifier: Apache-2.0
+
 defmodule Circuits.SPI do
   @moduledoc """
   This module enables Elixir programs to interact with hardware that's connected

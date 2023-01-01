@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2018 Frank Hunleth, Mark Sebald
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef SPI_NIF_H
 #define SPI_NIF_H
 

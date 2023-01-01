@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth, Mark Sebald
+#
+# SPDX-License-Identifier: Apache-2.0
+
 defmodule Circuits.SPI.Nif do
   @on_load {:load_nif, 0}
   @compile {:autoload, false}

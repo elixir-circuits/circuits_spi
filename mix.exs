@@ -44,7 +44,7 @@ defmodule Circuits.SPI.MixProject do
         "mix.exs",
         "README.md",
         "PORTING.md",
-        "LICENSE",
+        "LICENSES/*",
         "CHANGELOG.md",
         "Makefile"
       ],
