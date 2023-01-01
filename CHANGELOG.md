@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.0 - 2022-12-31
+
+* Changes
+  * Remove Erlang convenience functions since no one used them
+  * Require Elixir 1.10 or later. Previous versions probably work, but won't be
+    supported. This opens up the possibility of using Elixir 1.10+ features in
+    future releases.
+
 ## v1.3.0 - 2022-02-21
 
 * Updates
