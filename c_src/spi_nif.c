@@ -7,8 +7,6 @@
 // SPI NIF Private data
 struct SpiNifPriv {
     ErlNifResourceType *spi_nif_res_type;
-    ERL_NIF_TERM atom_ok;
-    ERL_NIF_TERM atom_error;
 };
 
 // SPI NIF Resource.
@@ -16,6 +14,9 @@ struct SpiNifRes {
     int fd;
     struct SpiConfig config;
 };
+
+static ERL_NIF_TERM atom_ok;
+static ERL_NIF_TERM atom_error;
 
 static void spi_dtor(ErlNifEnv *env, void *obj)
 {
@@ -49,8 +50,8 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
         return 1;
     }
 
-    priv->atom_ok = enif_make_atom(env, "ok");
-    priv->atom_error = enif_make_atom(env, "error");
+    atom_ok = enif_make_atom(env, "ok");
+    atom_error = enif_make_atom(env, "error");
 
     *priv_data = priv;
     return 0;
@@ -93,7 +94,7 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
 
     fd = hal_spi_open(device, &config, error_str);
     if (fd < 0) {
-        return enif_make_tuple2(env, priv->atom_error,
+        return enif_make_tuple2(env, atom_error,
                                 enif_make_atom(env, error_str));
     }
 
@@ -105,7 +106,7 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
     // Elixir side owns the resource. Safe for NIF side to release it.
     enif_release_resource(spi_nif_res);
 
-    return enif_make_tuple2(env, priv->atom_ok, res_term);
+    return enif_make_tuple2(env, atom_ok, res_term);
 }
 
 static ERL_NIF_TERM spi_config(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
@@ -126,7 +127,7 @@ static ERL_NIF_TERM spi_config(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
     enif_make_map_put(env, config, enif_make_atom(env, "lsb_first"), enif_make_uint(env, res->config.lsb_first), &config);
     enif_make_map_put(env, config, enif_make_atom(env, "sw_lsb_first"), enif_make_uint(env, res->config.sw_lsb_first), &config);
 
-    return enif_make_tuple2(env, priv->atom_ok, config);
+    return enif_make_tuple2(env, atom_ok, config);
 }
 
 static void reverse_bits(uint8_t *dest, const uint8_t *src, size_t len)
@@ -177,13 +178,13 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
 
     raw_bin_read = enif_make_new_binary(env, transfer_size, &bin_read);
     if (!raw_bin_read)
-        return enif_make_tuple2(env, priv->atom_error,
+        return enif_make_tuple2(env, atom_error,
                                 enif_make_atom(env, "alloc_failed"));
 
     if (res->config.sw_lsb_first) {
         to_write = enif_alloc(transfer_size);
         if (!to_write)
-            return enif_make_tuple2(env, priv->atom_error,
+            return enif_make_tuple2(env, atom_error,
                                     enif_make_atom(env, "alloc_failed"));
         reverse_bits(to_write, bin_write.data, transfer_size);
     } else {
@@ -191,7 +192,7 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     }
 
     if (hal_spi_transfer(res->fd, &res->config, to_write, raw_bin_read, transfer_size) < 0)
-        return enif_make_tuple2(env, priv->atom_error,
+        return enif_make_tuple2(env, atom_error,
                                 enif_make_atom(env, "transfer_failed"));
 
     if (res->config.sw_lsb_first) {
@@ -199,7 +200,7 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
         enif_free(to_write);
     }
 
-    return enif_make_tuple2(env, priv->atom_ok, bin_read);
+    return enif_make_tuple2(env, atom_ok, bin_read);
 }
 
 
@@ -217,7 +218,7 @@ static ERL_NIF_TERM spi_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[
         res->fd = -1;
     }
 
-    return priv->atom_ok;
+    return atom_ok;
 }
 
 static ERL_NIF_TERM spi_info(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
