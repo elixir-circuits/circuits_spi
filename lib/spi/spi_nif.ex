@@ -13,27 +13,12 @@ defmodule Circuits.SPI.Nif do
     :erlang.load_nif(to_charlist(nif_binary), 0)
   end
 
-  def open(_bus_name, _mode, _bits_per_word, _speed_hz, _delay_us, _lsb_first) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
+  def open(_bus_name, _mode, _bits_per_word, _speed_hz, _delay_us, _lsb_first),
+    do: :erlang.nif_error(:nif_not_loaded)
 
-  def config(_ref) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
-
-  def transfer(_ref, _data) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
-
-  def close(_ref) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
-
-  def info() do
-    :erlang.nif_error(:nif_not_loaded)
-  end
-
-  def max_transfer_size() do
-    :erlang.nif_error(:nif_not_loaded)
-  end
+  def config(_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def transfer(_ref, _data), do: :erlang.nif_error(:nif_not_loaded)
+  def close(_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def info(), do: :erlang.nif_error(:nif_not_loaded)
+  def max_transfer_size(), do: :erlang.nif_error(:nif_not_loaded)
 end
