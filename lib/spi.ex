@@ -78,7 +78,7 @@ defmodule Circuits.SPI do
     delay_us = Keyword.get(opts, :delay_us, 10)
     lsb_first = if Keyword.get(opts, :lsb_first), do: 1, else: 0
 
-    Nif.open(to_charlist(bus_name), mode, bits_per_word, speed_hz, delay_us, lsb_first)
+    Nif.open(to_string(bus_name), mode, bits_per_word, speed_hz, delay_us, lsb_first)
   end
 
   @doc """
@@ -102,14 +102,7 @@ defmodule Circuits.SPI do
   """
   @spec transfer(spi_bus(), iodata()) :: {:ok, binary()} | {:error, term()}
   def transfer(spi_bus, data) do
-    # Flatten the iodata here rather than in the NIF.
-    # In theory, this could be done in the NIF and the Linux kernel could do
-    # the reassembly. I'm not 100% sure this is a performance improvement
-    # except possibly for people sending to SPI displays. If you're seeing this
-    # and using a SPI display and using iodata and hitting a performance issue
-    # that's not improved by raising the SPI bus speed, this might be worth
-    # trying.
-    Nif.transfer(spi_bus, IO.iodata_to_binary(data))
+    Nif.transfer(spi_bus, data)
   end
 
   @doc """

@@ -42,17 +42,10 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
     return enif_make_uint64(env, bufsiz);
 }
 
-int hal_spi_open(const char *device,
+int hal_spi_open(const char *device_path,
                  struct SpiConfig *config,
                  char *error_str)
 {
-    const char *device_path = device;
-
-    char buffer[64] = "/dev/";
-    if (strncmp(device, "/dev/", 5) != 0) {
-        strncat(buffer, device, sizeof(buffer) - 1);
-        device_path = buffer;
-    }
     int fd = open(device_path, O_RDWR);
     if (fd < 0) {
         strcpy(error_str, "access_denied");

@@ -17,6 +17,12 @@ struct SpiNifRes {
 
 static ERL_NIF_TERM atom_ok;
 static ERL_NIF_TERM atom_error;
+static ERL_NIF_TERM atom_mode;
+static ERL_NIF_TERM atom_bits_per_word;
+static ERL_NIF_TERM atom_speed_hz;
+static ERL_NIF_TERM atom_delay_us;
+static ERL_NIF_TERM atom_lsb_first;
+static ERL_NIF_TERM atom_sw_lsb_first;
 
 static void spi_dtor(ErlNifEnv *env, void *obj)
 {
@@ -52,6 +58,12 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 
     atom_ok = enif_make_atom(env, "ok");
     atom_error = enif_make_atom(env, "error");
+    atom_mode = enif_make_atom(env, "mode");
+    atom_bits_per_word = enif_make_atom(env, "bits_per_word");
+    atom_speed_hz = enif_make_atom(env, "speed_hz");
+    atom_delay_us = enif_make_atom(env, "delay_us");
+    atom_lsb_first = enif_make_atom(env, "lsb_first");
+    atom_sw_lsb_first = enif_make_atom(env, "sw_lsb_first");
 
     *priv_data = priv;
     return 0;
@@ -66,33 +78,24 @@ static void spi_unload(ErlNifEnv *env, void *priv_data)
 static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     struct SpiNifPriv *priv = enif_priv_data(env);
-    char device[16];
-    char error_str[128];
-
+    ErlNifBinary path;
     struct SpiConfig config;
-    int fd;
+    memset(&config, 0, sizeof(config));
 
     debug("spi_open");
-    if (!enif_get_string(env, argv[0], device, sizeof(device), ERL_NIF_LATIN1))
+    if (!enif_inspect_binary(env, argv[0], &path) ||
+            !enif_get_uint(env, argv[1], &config.mode) ||
+            !enif_get_uint(env, argv[2], &config.bits_per_word) ||
+            !enif_get_uint(env, argv[3], &config.speed_hz) ||
+            !enif_get_uint(env, argv[4], &config.delay_us) ||
+            !enif_get_uint(env, argv[5], &config.lsb_first))
         return enif_make_badarg(env);
 
-    memset(&config, 0, sizeof(config));
-    if (!enif_get_uint(env, argv[1], &config.mode))
-        return enif_make_badarg(env);
+    char devpath[32];
+    snprintf(devpath, sizeof(devpath), "/dev/%.*s", (int) path.size, path.data);
 
-    if (!enif_get_uint(env, argv[2], &config.bits_per_word))
-        return enif_make_badarg(env);
-
-    if (!enif_get_uint(env, argv[3], &config.speed_hz))
-        return enif_make_badarg(env);
-
-    if (!enif_get_uint(env, argv[4], &config.delay_us))
-        return enif_make_badarg(env);
-
-    if (!enif_get_uint(env, argv[5], &config.lsb_first))
-        return enif_make_badarg(env);
-
-    fd = hal_spi_open(device, &config, error_str);
+    char error_str[128];
+    int fd = hal_spi_open(devpath, &config, error_str);
     if (fd < 0) {
         return enif_make_tuple2(env, atom_error,
                                 enif_make_atom(env, error_str));
@@ -120,12 +123,12 @@ static ERL_NIF_TERM spi_config(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
         return enif_make_badarg(env);
 
     ERL_NIF_TERM config = enif_make_new_map(env);
-    enif_make_map_put(env, config, enif_make_atom(env, "mode"), enif_make_uint(env, res->config.mode), &config);
-    enif_make_map_put(env, config, enif_make_atom(env, "bits_per_word"), enif_make_uint(env, res->config.bits_per_word), &config);
-    enif_make_map_put(env, config, enif_make_atom(env, "speed_hz"), enif_make_uint(env, res->config.speed_hz), &config);
-    enif_make_map_put(env, config, enif_make_atom(env, "delay_us"), enif_make_uint(env, res->config.delay_us), &config);
-    enif_make_map_put(env, config, enif_make_atom(env, "lsb_first"), enif_make_uint(env, res->config.lsb_first), &config);
-    enif_make_map_put(env, config, enif_make_atom(env, "sw_lsb_first"), enif_make_uint(env, res->config.sw_lsb_first), &config);
+    enif_make_map_put(env, config, atom_mode, enif_make_uint(env, res->config.mode), &config);
+    enif_make_map_put(env, config, atom_bits_per_word, enif_make_uint(env, res->config.bits_per_word), &config);
+    enif_make_map_put(env, config, atom_speed_hz, enif_make_uint(env, res->config.speed_hz), &config);
+    enif_make_map_put(env, config, atom_delay_us, enif_make_uint(env, res->config.delay_us), &config);
+    enif_make_map_put(env, config, atom_lsb_first, enif_make_uint(env, res->config.lsb_first), &config);
+    enif_make_map_put(env, config, atom_sw_lsb_first, enif_make_uint(env, res->config.sw_lsb_first), &config);
 
     return enif_make_tuple2(env, atom_ok, config);
 }
@@ -168,10 +171,8 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     size_t transfer_size;
 
     debug("spi_transfer");
-    if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res))
-        return enif_make_badarg(env);
-
-    if (!enif_inspect_binary(env, argv[1], &bin_write))
+    if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res) ||
+            !enif_inspect_iolist_as_binary(env, argv[1], &bin_write))
         return enif_make_badarg(env);
 
     transfer_size = bin_write.size;
@@ -202,7 +203,6 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
 
     return enif_make_tuple2(env, atom_ok, bin_read);
 }
-
 
 static ERL_NIF_TERM spi_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {

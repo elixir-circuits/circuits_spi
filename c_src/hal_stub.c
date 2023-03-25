@@ -19,7 +19,7 @@ ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
     return enif_make_uint64(env, 4096);
 }
 
-int hal_spi_open(const char *device,
+int hal_spi_open(const char *device_path,
                  struct SpiConfig *config,
                  char *error_str)
 {
