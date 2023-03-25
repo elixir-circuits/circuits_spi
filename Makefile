@@ -12,7 +12,7 @@
 # Variables to override:
 #
 # MIX_APP_PATH  path to the build directory
-# MIX_ENV       Mix build environment - "test" forces use of the stub
+# CIRCUITS_SPI_SPIDEV Backend to build - `"normal"`, `"test"`, or `"disabled"` will build a NIF
 #
 # CC            C compiler
 # CROSSCOMPILE	crosscompiler prefix, if any
@@ -32,30 +32,32 @@ CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter -pedantic
 
 # Check that we're on a supported build platform
 ifeq ($(CROSSCOMPILE),)
-    # Not crosscompiling, so check that we're on Linux.
-    ifneq ($(shell uname -s),Linux)
-        $(warning Elixir Circuits only works on Nerves and Linux platforms.)
-        $(warning A stub NIF will be compiled for test purposes.)
-	HAL_SRC = c_src/hal_stub.c
-        LDFLAGS += -undefined dynamic_lookup -dynamiclib
-    else
-        LDFLAGS += -fPIC -shared
-        CFLAGS += -fPIC
-
-	# SPI_IOC_RD_* macros trigger this warning when passed to ioctl on some
-	# Linux/gcc combinations that don't seem to be used when crosscompiling
-	# with Nerves, so disable.
-	CFLAGS += -Wno-overflow
-    endif
-
-    # Always use the stub when testing
-    ifeq ($(MIX_ENV),test)
-	HAL_SRC = c_src/hal_stub.c
-    endif
+# Not crosscompiling, so check that we're on Linux for whether to compile the NIF.
+ifeq ($(shell uname -s),Linux)
+CFLAGS += -fPIC
+LDFLAGS += -fPIC -shared
+else
+LDFLAGS += -undefined dynamic_lookup -dynamiclib
+ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
+$(error Circuits.SPI Linux SPIDev backend is not supported on non-Linux platforms. Review circuits_spi backend configuration or report an issue if improperly detected.)
+endif
+endif
 else
 # Crosscompiled build
 LDFLAGS += -fPIC -shared
 CFLAGS += -fPIC
+endif
+
+ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
+# Enable real SPI calls. This is the default and works with Nerves
+else
+ifeq ($(CIRCUITS_SPI_SPIDEV),test)
+# Stub out ioctls and send back test data
+HAL_SRC = c_src/hal_stub.c
+else
+# Don't build NIF
+NIF =
+endif
 endif
 
 # Set Erlang-specific compile and linker flags

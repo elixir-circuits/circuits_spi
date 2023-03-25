@@ -8,11 +8,11 @@ defmodule CircuitsSPITest do
   # All possible byte values needed for lsb <-> msb test
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)
 
-  test "info returns a map" do
+  test "info/0" do
     info = Circuits.SPI.info()
 
     assert is_map(info)
-    assert Map.has_key?(info, :name)
+    assert info.backend == Circuits.SPI.SPIDev
   end
 
   test "max buffer size returns an non-negative integer" do
