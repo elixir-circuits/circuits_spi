@@ -76,7 +76,7 @@ defmodule Circuits.SPI do
     bits_per_word = Keyword.get(opts, :bits_per_word, 8)
     speed_hz = Keyword.get(opts, :speed_hz, 1_000_000)
     delay_us = Keyword.get(opts, :delay_us, 10)
-    lsb_first = if Keyword.get(opts, :lsb_first), do: 1, else: 0
+    lsb_first = Keyword.get(opts, :lsb_first, false)
 
     Nif.open(to_string(bus_name), mode, bits_per_word, speed_hz, delay_us, lsb_first)
   end
@@ -89,9 +89,7 @@ defmodule Circuits.SPI do
   """
   @spec config(spi_bus()) :: {:ok, spi_option_map()} | {:error, term()}
   def config(spi_bus) do
-    with {:ok, config} <- Nif.config(spi_bus) do
-      {:ok, %{config | lsb_first: config.lsb_first != 0, sw_lsb_first: config.sw_lsb_first != 0}}
-    end
+    Nif.config(spi_bus)
   end
 
   @doc """

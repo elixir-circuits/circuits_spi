@@ -17,6 +17,8 @@ struct SpiNifRes {
 
 static ERL_NIF_TERM atom_ok;
 static ERL_NIF_TERM atom_error;
+static ERL_NIF_TERM atom_true;
+static ERL_NIF_TERM atom_false;
 static ERL_NIF_TERM atom_mode;
 static ERL_NIF_TERM atom_bits_per_word;
 static ERL_NIF_TERM atom_speed_hz;
@@ -58,6 +60,8 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 
     atom_ok = enif_make_atom(env, "ok");
     atom_error = enif_make_atom(env, "error");
+    atom_true = enif_make_atom(env, "true");
+    atom_false = enif_make_atom(env, "false");
     atom_mode = enif_make_atom(env, "mode");
     atom_bits_per_word = enif_make_atom(env, "bits_per_word");
     atom_speed_hz = enif_make_atom(env, "speed_hz");
@@ -75,6 +79,17 @@ static void spi_unload(ErlNifEnv *env, void *priv_data)
     enif_free(priv_data);
 }
 
+static inline ERL_NIF_TERM make_boolean(int value)
+{
+    return value ? atom_true : atom_false;
+}
+
+static inline int get_boolean(ErlNifEnv* env, ERL_NIF_TERM term, int *out)
+{
+    *out = (term != atom_false);
+    return 1;
+}
+
 static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     struct SpiNifPriv *priv = enif_priv_data(env);
@@ -88,7 +103,7 @@ static ERL_NIF_TERM spi_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]
             !enif_get_uint(env, argv[2], &config.bits_per_word) ||
             !enif_get_uint(env, argv[3], &config.speed_hz) ||
             !enif_get_uint(env, argv[4], &config.delay_us) ||
-            !enif_get_uint(env, argv[5], &config.lsb_first))
+            !get_boolean(env, argv[5], &config.lsb_first))
         return enif_make_badarg(env);
 
     char devpath[32];
@@ -127,8 +142,8 @@ static ERL_NIF_TERM spi_config(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
     enif_make_map_put(env, config, atom_bits_per_word, enif_make_uint(env, res->config.bits_per_word), &config);
     enif_make_map_put(env, config, atom_speed_hz, enif_make_uint(env, res->config.speed_hz), &config);
     enif_make_map_put(env, config, atom_delay_us, enif_make_uint(env, res->config.delay_us), &config);
-    enif_make_map_put(env, config, atom_lsb_first, enif_make_uint(env, res->config.lsb_first), &config);
-    enif_make_map_put(env, config, atom_sw_lsb_first, enif_make_uint(env, res->config.sw_lsb_first), &config);
+    enif_make_map_put(env, config, atom_lsb_first, make_boolean(res->config.lsb_first), &config);
+    enif_make_map_put(env, config, atom_sw_lsb_first, make_boolean(res->config.sw_lsb_first), &config);
 
     return enif_make_tuple2(env, atom_ok, config);
 }

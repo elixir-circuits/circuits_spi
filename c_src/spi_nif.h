@@ -39,8 +39,8 @@ struct SpiConfig {
     unsigned int bits_per_word;
     unsigned int speed_hz;
     unsigned int delay_us;
-    unsigned int lsb_first;
-    unsigned int sw_lsb_first;
+    int lsb_first;
+    int sw_lsb_first;
 };
 
 /**

@@ -43,6 +43,9 @@ defmodule CircuitsSPITest do
 
   test "transfers loop back using stub and lsb_first" do
     {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+    {:ok, config} = Circuits.SPI.config(spi)
+    assert config.lsb_first == true
+    assert config.sw_lsb_first == true
 
     {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
 
