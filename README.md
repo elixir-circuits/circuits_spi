@@ -5,10 +5,14 @@
 [![CircleCI](https://circleci.com/gh/elixir-circuits/circuits_spi.svg?style=svg)](https://circleci.com/gh/elixir-circuits/circuits_spi)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-circuits/circuits_spi)](https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi)
 
-`Circuits.SPI` provides high level abstractions for interfacing to SPI buses on
-Linux platforms. Internally, it uses the [Linux device
-interface](https://elixir.bootlin.com/linux/latest/source/Documentation/spi/spidev)
-so that it does not require board-dependent code.
+`Circuits.SPI` lets you communicate with hardware devices using the SPI
+protocol.
+
+*This is the v1 maintenance branch. This is the version you want for production
+use now. To follow v2.0 development, see the [circuits_spi v2.0
+branch](https://github.com/elixir-circuits/circuits_spi/tree/v2.0)*
+
+If you're coming from Elixir/ALE, check out our [porting guide](PORTING.md).
 
 ## Getting started
 
@@ -17,7 +21,7 @@ support, then add `circuits_spi` like any other Elixir library:
 
 ```elixir
 def deps do
-  [{:circuits_spi, "~> 1.3"}]
+  [{:circuits_spi, "~> 1.4"}]
 end
 ```
 
