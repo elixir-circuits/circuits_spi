@@ -5,19 +5,33 @@
 [![CircleCI](https://circleci.com/gh/elixir-circuits/circuits_spi.svg?style=svg)](https://circleci.com/gh/elixir-circuits/circuits_spi)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-circuits/circuits_spi)](https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi)
 
-`Circuits.SPI` provides high level abstractions for interfacing to SPI buses on
-Linux platforms. Internally, it uses the [Linux device
-interface](https://elixir.bootlin.com/linux/latest/source/Documentation/spi/spidev)
-so that it does not require board-dependent code.
+`Circuits.SPI` lets you communicate with hardware devices using the SPI protocol.
 
-## Getting started
+*This is the v2.0 development branch. It's not ready yet. Most users will want
+to follow the [maint-v1.x branch](https://github.com/elixir-circuits/circuits_spi/tree/maint-v1.x).*
+
+`Circuits.SPI` v2.0  is an almost backwards compatible update to `Circuits.SPI`
+v1.x. Here's what's new:
+
+* Linux or Nerves are no longer required. In fact, the NIF supporting them won't
+  be compiled if you don't want it.
+* Develop using simulated SPI devices with
+  [CircuitsSim](https://github.com/elixir-circuits/circuits_sim)
+* Use USB->SPI adapters for development on your laptop (Coming soon)
+
+If you've used `Circuits.SPI` v1.x, nearly all of your code will be the same. If
+you're a library author, we'd appreciate if you could try this out and update
+your `:circuits_spi` dependency to allow v2.0. Details can be found in our
+[porting guide](PORTING.md).
+
+## Getting started on Nerves and Linux
 
 If you're using Nerves or compiling on a Raspberry Pi or other device with SPI
 support, then add `circuits_spi` like any other Elixir library:
 
 ```elixir
 def deps do
-  [{:circuits_spi, "~> 1.3"}]
+  [{:circuits_spi, "~> 2.0"}]
 end
 ```
 
@@ -124,7 +138,7 @@ are set as optional parameters to
 For example, the following configures the SPI bus to run at 122,000 Hz:
 
 ```elixir
-{:ok, ref} = Circuits.SPI.open("spidev0.0", speed_hz: 122000)`
+{:ok, my_spi} = Circuits.SPI.open("spidev0.0", speed_hz: 122000)`
 ```
 
 The ability to set the bus speed is device-specific. Please verify with a logic
@@ -145,21 +159,13 @@ you're not using Nerves.
 
 ### Can I develop code that uses Circuits.SPI on my laptop?
 
-You'll need to fake out the hardware. Code to do this depends on what your
-hardware actually does, but here's one example:
+You have a few options:
 
-* [Compiling and testing Elixir Nerves on your host machine](http://www.cultivatehq.com/posts/compiling-and-testing-elixir-nerves-on-your-host-machine/)
+1. Use the CircuitsSim backend
+2. Create a custom backend and use it to mock interactions with the Circuits.SPI
+   API
 
-Please share other examples if you have them.
-
-### Will it run on Arduino?
-
-No. This only runs on Linux-based boards. If you're interested in controlling an
-Arduino from a computer that can run Elixir, check out
-[nerves_uart](https://hex.pm/packages/nerves_uart) for communicating via the
-Arduino's serial connection or
-[firmata](https://github.com/mobileoverlord/firmata) for communication using the
-Arduino's Firmata protocol.
+We hope to have support for USB adapters that have SPI interfaces in the future.
 
 ## License
 
