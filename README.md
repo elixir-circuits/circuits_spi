@@ -8,9 +8,9 @@
 `Circuits.SPI` lets you communicate with hardware devices using the SPI
 protocol.
 
-*This is the v1 maintenance branch. This is the version you want for production
-use now. To follow v2.0 development, see the [circuits_spi v2.0
-branch](https://github.com/elixir-circuits/circuits_spi/tree/v2.0)*
+*This is the v1 maintenance branch. It is still used a lot in production.
+Circuits.SPI v2 is available at now, see the [main development
+branch](https://github.com/elixir-circuits/circuits_spi)*
 
 If you're coming from Elixir/ALE, check out our [porting guide](PORTING.md).
 
