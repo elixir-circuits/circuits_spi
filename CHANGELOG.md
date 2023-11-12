@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.0 - 2022-11-12
+
+Official v2.0.0 release. No changes from v2.0.0-pre.0.
+
 ## v2.0.0-pre.0 - 2022-05-30
 
 This is a major update to Circuits.SPI that removes the requirement to use
