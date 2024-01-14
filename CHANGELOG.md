@@ -1,10 +1,16 @@
 # Changelog
 
-## v2.0.0 - 2022-11-12
+## v2.0.1 - 2024-01-14
+
+* Changes
+  * Fix race condition when multiple processes load the NIF simultaneously that
+    would cause an unnecessary crash.
+
+## v2.0.0 - 2023-11-12
 
 Official v2.0.0 release. No changes from v2.0.0-pre.0.
 
-## v2.0.0-pre.0 - 2022-05-30
+## v2.0.0-pre.0 - 2023-05-30
 
 This is a major update to Circuits.SPI that removes the requirement to use
 Nerves or Linux. The API is almost the same and the default is to compile and
