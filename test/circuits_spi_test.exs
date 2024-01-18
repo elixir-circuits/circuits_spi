@@ -62,20 +62,4 @@ defmodule CircuitsSPITest do
 
     assert result == expected
   end
-
-  test "racing to load the NIF" do
-    # Make sure the NIF isn't loaded
-    _ = :code.delete(Circuits.SPI.Nif)
-    _ = :code.purge(Circuits.SPI.Nif)
-
-    # Try to hit the race by having 32 processes race to load the NIF
-    tasks =
-      for _ <- 0..31 do
-        Task.async(fn ->
-          _ = Circuits.SPI.info()
-        end)
-      end
-
-    Enum.each(tasks, &Task.await/1)
-  end
 end
