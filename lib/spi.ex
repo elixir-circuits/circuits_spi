@@ -34,6 +34,9 @@ defmodule Circuits.SPI do
   * `delay_us` - Set the delay between transactions (10)
   * `lsb_first` - Set to `true` to send the least significant bit first rather
     than the most significant one. (false)
+    The error message `unsupported mode bits 8` might be printed due to
+    hardware that doesn't support the LSB-first mode, which can be ignored
+    since Circuits.SPI handles it automatically.
   """
   @type spi_option() ::
           {:mode, 0..3}
