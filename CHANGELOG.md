@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.3 - 2024-04-20
+
+* Improvements
+  * Improve target detection so that setting `MIX_TARGET` when not
+    crosscompiling does the expected thing on MacOS.
+  * Explain lsb-first-related error message on some devices. @mnishiguchi
+
 ## v2.0.2 - 2024-01-15
 
 * Bug fixes
