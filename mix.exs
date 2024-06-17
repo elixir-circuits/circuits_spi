@@ -9,7 +9,7 @@ defmodule Circuits.SPI.MixProject do
     [
       app: :circuits_spi,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.13",
       description: @description,
       package: package(),
       source_url: @source_url,
