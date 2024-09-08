@@ -61,8 +61,8 @@ endif
 endif
 
 # Set Erlang-specific compile and linker flags
-ERL_CFLAGS ?= -I$(ERL_EI_INCLUDE_DIR)
-ERL_LDFLAGS ?= -L$(ERL_EI_LIBDIR) -lei
+ERL_CFLAGS ?= -I"$(ERL_EI_INCLUDE_DIR)"
+ERL_LDFLAGS ?= -L"$(ERL_EI_LIBDIR)" -lei
 
 HAL_SRC ?= c_src/hal_spidev.c
 SRC = $(HAL_SRC) c_src/spi_nif.c
