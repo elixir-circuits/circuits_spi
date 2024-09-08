@@ -65,7 +65,7 @@ defmodule Circuits.SPI.MixProject do
 
   defp docs do
     [
-      assets: "assets",
+      assets: %{"assets" => "assets"},
       extras: ["README.md", "PORTING.md", "CHANGELOG.md"],
       main: "readme",
       source_ref: "v#{@version}",
