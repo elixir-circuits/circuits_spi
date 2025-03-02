@@ -1,4 +1,7 @@
-# SPDX-FileCopyrightText: 2018 Frank Hunleth, Mark Sebald
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Mark Sebald
+# SPDX-FileCopyrightText: 2021 Cocoa Xu
+# SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
 #
 # SPDX-License-Identifier: Apache-2.0
 

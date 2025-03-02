@@ -2,7 +2,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/circuits_spi.svg "Hex version")](https://hex.pm/packages/circuits_spi)
 [![API docs](https://img.shields.io/hexpm/v/circuits_spi.svg?label=hexdocs "API docs")](https://hexdocs.pm/circuits_spi/Circuits.SPI.html)
-[![CircleCI](https://circleci.com/gh/elixir-circuits/circuits_spi.svg?style=svg)](https://circleci.com/gh/elixir-circuits/circuits_spi)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/elixir-circuits/circuits_spi/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/elixir-circuits/circuits_spi/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-circuits/circuits_spi)](https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi)
 
 `Circuits.SPI` lets you communicate with hardware devices using the SPI protocol.

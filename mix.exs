@@ -44,13 +44,18 @@ defmodule Circuits.SPI.MixProject do
         "c_src/*.[ch]",
         "mix.exs",
         "README.md",
+        "NOTICE",
         "PORTING.md",
         "LICENSES/*",
         "CHANGELOG.md",
         "Makefile"
       ],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "REUSE Compliance" =>
+          "https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi"
+      }
     }
   end
 
