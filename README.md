@@ -39,20 +39,40 @@ ones beforehand. On the Raspberry Pi, the [Adafruit Raspberry Pi SPI
 instructions](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-spi)
 may be helpful, (This is already enabled for you if you are using Nerves)
 
-
 A [Serial Peripheral
 Interface](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus) (SPI)
 bus is a common multi-wire bus used to connect components on a circuit board. A
 clock line drives the timing of sending bits between components. Bits on the
-Controller Out Peripheral In `COPI` line go from the controller (usually the processor
-running Linux) to the peripheral, and bits on the Controller In Peripheral Out `CIPO` line go
-the other direction. Bits transfer both directions simultaneously. However, much
-of the time, the protocol used across the SPI bus has a request followed by a
-response and in these cases, bits going the "wrong" direction are ignored. This
-will become more clear in the example below.
+Controller Out Peripheral In, `COPI`, line go from the controller (usually the
+processor running this library) to the peripheral, and bits on the Controller
+In Peripheral Out, `CIPO`, line go the other direction. If you see references
+to `MOSI` or `MISO`, those are the former terms for `COPI` and `CIPO`.
 
-The following shows an example Analog to Digital Converter (ADC) that reads from
-either a temperature sensor on CH0 (channel 0) or a potentiometer on CH1
+Bits transfer on the SPI bus in both directions simultaneously on each
+transaction. However, most of the time, programs and devices only care about
+bits traveling in one direction at time. For example, when the program makes a
+request, the bits sent to the device are important, but the ones received get
+ignored. Then when the device sends the response, the program only pays
+attention to the received bits. Anything it sends will be ignored by the device
+and programs frequently just send zeros. This will become more clear in the
+example below.
+
+The final important concept with SPI is the Chip Select, `CS`, line. This is a
+common, but optional wire to the device that's used by the program to tell the
+device that it's talking to it. This is useful when multiple SPI devices are
+connected to the same wires. Each device has a `CS` wire going to it and the
+program sets the wire high to the device it wants. While the `CS` wire can be
+any GPIO, most processors can automatically toggle the `CS` wire when making
+SPI transactions.
+
+When using `Circuits.SPI` on Linux and Nerves, `Circuits.SPI.open/2` uses the
+Linux SPI device naming which includes the SPI bus number and chip select. For
+example, the name `"spidev1.0"` refers to SPI bus 1 and CS0. All transactions
+will automatically set CS0. Refer to your board or processor for SPI bus and CS
+numbering.
+
+The following shows an example Analog to Digital Converter (ADC) that reads
+from either a temperature sensor on CH0 (channel 0) or a potentiometer on CH1
 (channel 1). It converts the analog measurements to digital, and sends the
 digital measurements to SPI pins on the main processor running Linux (e.g.
 Raspberry Pi). Many processors, like the one on the Raspberry Pi, can't read
@@ -64,16 +84,15 @@ The protocol for talking to the ADC in the example below is described in the
 [MCP3002](http://www.microchip.com/wwwproducts/en/MCP3002) data sheet. The
 protocol is very similar to an application program interface (API) for
 software. It will tell you the position and function of the bits you will send
-to the ADC, along with how the data (in the form of bits)
-will be returned.
+to the ADC, along with how the data (in the form of bits) will be returned.
 
 See Figure 6-1 in the data sheet for the communication protocol. Sending a
 `0x68` first reads the temperature and sending a `0x78` reads the
-potentiometer. Since the data sheet shows bits, `0x68` corresponds to `01101000b`.
-The leftmost bit is the "Start" bit. The second bit is SGL/DIFF, the third
-bit is ODD/SIGN, and the fourth bit is MSBF. From table 5-1, if SGL/DIFF==1,
-ODD/SIGN==0, and MSBF==1 then that specifies channel 0 which is connected to
-the thermometer.
+potentiometer. Since the data sheet shows bits, `0x68` corresponds to
+`01101000b`.  The leftmost bit is the "Start" bit. The second bit is SGL/DIFF,
+the third bit is ODD/SIGN, and the fourth bit is MSBF. From table 5-1, if
+SGL/DIFF==1, ODD/SIGN==0, and MSBF==1 then that specifies channel 0 which is
+connected to the thermometer.
 
 ```elixir
 # Make sure that you've enabled or loaded the SPI driver or this will
