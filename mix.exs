@@ -33,13 +33,13 @@ defmodule Circuits.SPI.MixProject do
         make_cwd: "backends/linux",
         make_targets: ["all"],
         make_clean: ["clean"],
-        aliases: [compile: [&set_make_env/1, "compile"], format: [&format_c/1, "format"]]
+        aliases: [format: [&format_c/1, "format"]]
       ]
 
       Keyword.merge(base, additions, fn _key, value1, value2 -> value1 ++ value2 end)
     else
       base
-    end
+    end |> dbg()
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -52,7 +52,7 @@ defmodule Circuits.SPI.MixProject do
   def application do
     # IMPORTANT: This provides defaults at runtime and at compile-time when
     # circuits_spi is pulled in as a dependency.
-    [env: [default_backend: default_backend(), build_spidev: false]]
+    [env: [backends: default_backend(), build_spidev: false]]
   end
 
   defp package do
@@ -108,7 +108,7 @@ defmodule Circuits.SPI.MixProject do
       # Otherwise, infer whether to build it based on the default_backend
       # setting. If default_backend references it, then build it. If it
       # references something else, then don't build. Default is to build.
-      default_backend = Application.get_env(:circuits_spi, :default_backend)
+      default_backend = Application.get_env(:circuits_spi, :backends)
 
       default_backend == Circuits.SPI.LinuxBackend or
         (is_tuple(default_backend) and elem(default_backend, 0) == Circuits.SPI.LinuxBackend)
@@ -136,27 +136,6 @@ defmodule Circuits.SPI.MixProject do
       {:ok, _} -> Circuits.SPI.LinuxBackend
       :error -> default_backend(env, :host, true)
     end
-  end
-
-  defp set_make_env(_args) do
-    # Since user configuration hasn't been loaded into the application
-    # environment when `project/1` is called, load it here for building
-    # the NIF.
-    backend = Application.get_env(:circuits_spi, :default_backend, default_backend())
-
-    System.put_env("CIRCUITS_SPI_SPIDEV", spi_dev_compile_mode(backend))
-  end
-
-  defp spi_dev_compile_mode({Circuits.SPI.LinuxBackend, options}) do
-    if Keyword.get(options, :test) do
-      "test"
-    else
-      "normal"
-    end
-  end
-
-  defp spi_dev_compile_mode(_other) do
-    "normal"
   end
 
   defp format_c([]) do
