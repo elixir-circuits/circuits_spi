@@ -4,7 +4,6 @@
 
 defmodule Circuits.SPI.LinuxBackendNIFTest do
   use ExUnit.Case
-  @moduletag :linux
 
   alias Circuits.SPI.LinuxBackendNIF
 
