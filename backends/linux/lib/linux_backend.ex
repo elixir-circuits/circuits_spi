@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-defmodule Circuits.SPI.SPIDev do
+defmodule Circuits.SPI.LinuxBackend do
   @moduledoc """
   Circuits.SPI backend for the Linux spidev interface
 
@@ -11,8 +11,8 @@ defmodule Circuits.SPI.SPIDev do
   @behaviour Circuits.SPI.Backend
 
   alias Circuits.SPI.Backend
+  alias Circuits.SPI.LinuxBackendNIF
   alias Circuits.SPI.Bus
-  alias Circuits.SPI.Nif
 
   defstruct [:ref]
 
@@ -52,7 +52,14 @@ defmodule Circuits.SPI.SPIDev do
     lsb_first = Keyword.get(options, :lsb_first, false)
 
     with {:ok, ref} <-
-           Nif.open(to_string(bus_name), mode, bits_per_word, speed_hz, delay_us, lsb_first) do
+           LinuxBackendNIF.open(
+             to_string(bus_name),
+             mode,
+             bits_per_word,
+             speed_hz,
+             delay_us,
+             lsb_first
+           ) do
       {:ok, %__MODULE__{ref: ref}}
     end
   end
@@ -62,29 +69,29 @@ defmodule Circuits.SPI.SPIDev do
   """
   @impl Backend
   def info() do
-    Nif.info()
+    LinuxBackendNIF.info()
     |> Map.put(:backend, __MODULE__)
   end
 
   defimpl Bus do
     @impl Bus
-    def config(%Circuits.SPI.SPIDev{ref: ref}) do
-      Nif.config(ref)
+    def config(%Circuits.SPI.LinuxBackend{ref: ref}) do
+      LinuxBackendNIF.config(ref)
     end
 
     @impl Bus
-    def transfer(%Circuits.SPI.SPIDev{ref: ref}, data) do
-      Nif.transfer(ref, data)
+    def transfer(%Circuits.SPI.LinuxBackend{ref: ref}, data) do
+      LinuxBackendNIF.transfer(ref, data)
     end
 
     @impl Bus
-    def close(%Circuits.SPI.SPIDev{ref: ref}) do
-      Nif.close(ref)
+    def close(%Circuits.SPI.LinuxBackend{ref: ref}) do
+      LinuxBackendNIF.close(ref)
     end
 
     @impl Bus
-    def max_transfer_size(%Circuits.SPI.SPIDev{}) do
-      Nif.max_transfer_size()
+    def max_transfer_size(%Circuits.SPI.LinuxBackend{}) do
+      LinuxBackendNIF.max_transfer_size()
     end
   end
 end

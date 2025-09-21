@@ -14,6 +14,8 @@ defmodule Circuits.SPI.MixProject do
       description: @description,
       package: package(),
       source_url: @source_url,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_paths: ["test"],
       docs: docs(),
       start_permanent: Mix.env() == :prod,
       dialyzer: [
@@ -25,7 +27,8 @@ defmodule Circuits.SPI.MixProject do
     if build_spidev?() do
       additions = [
         compilers: [:elixir_make | Mix.compilers()],
-        elixirc_paths: ["lib", "backends/linux/lib"],
+        elixirc_paths: ["backends/linux/lib"],
+        test_paths: ["backends/linux/test"],
         make_makefile: "Makefile",
         make_cwd: "backends/linux",
         make_targets: ["all"],
@@ -33,11 +36,14 @@ defmodule Circuits.SPI.MixProject do
         aliases: [compile: [&set_make_env/1, "compile"], format: [&format_c/1, "format"]]
       ]
 
-      Keyword.merge(base, additions)
+      Keyword.merge(base, additions, fn _key, value1, value2 -> value1 ++ value2 end)
     else
       base
     end
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   def cli do
     [preferred_envs: %{docs: :docs, "hex.publish": :docs, "hex.build": :docs}]
@@ -104,18 +110,18 @@ defmodule Circuits.SPI.MixProject do
       # references something else, then don't build. Default is to build.
       default_backend = Application.get_env(:circuits_spi, :default_backend)
 
-      default_backend == nil or default_backend == Circuits.SPI.SPIDev or
-        (is_tuple(default_backend) and elem(default_backend, 0) == Circuits.SPI.SPIDev)
+      default_backend == Circuits.SPI.LinuxBackend or
+        (is_tuple(default_backend) and elem(default_backend, 0) == Circuits.SPI.LinuxBackend)
     end
   end
 
   defp default_backend(), do: default_backend(Mix.env(), Mix.target(), build_spidev?())
-  defp default_backend(:test, _target, true), do: {Circuits.SPI.SPIDev, test: true}
+  defp default_backend(:test, _target, _build_spidev?), do: Circuits.SPI.LoopBackend
 
   defp default_backend(_env, :host, true) do
     case :os.type() do
-      {:unix, :linux} -> Circuits.SPI.SPIDev
-      _ -> {Circuits.SPI.SPIDev, test: true}
+      {:unix, :linux} -> Circuits.SPI.LinuxBackend
+      _ -> Circuits.SPI.NilBackends
     end
   end
 
@@ -123,11 +129,11 @@ defmodule Circuits.SPI.MixProject do
 
   # MIX_TARGET set to something besides host
   defp default_backend(env, _not_host, true) do
-    # If CROSSCOMPILE is set, then the Makefile will use the crosscompiler and
+    # If CROSSCOMPILE is set, then the Makefile will use the cross-compiler and
     # assume a Linux/Nerves build If not, then the NIF will be build for the
     # host, so use the default host backend
     case System.fetch_env("CROSSCOMPILE") do
-      {:ok, _} -> Circuits.SPI.SPIDev
+      {:ok, _} -> Circuits.SPI.LinuxBackend
       :error -> default_backend(env, :host, true)
     end
   end
@@ -141,7 +147,7 @@ defmodule Circuits.SPI.MixProject do
     System.put_env("CIRCUITS_SPI_SPIDEV", spi_dev_compile_mode(backend))
   end
 
-  defp spi_dev_compile_mode({Circuits.SPI.SPIDev, options}) do
+  defp spi_dev_compile_mode({Circuits.SPI.LinuxBackend, options}) do
     if Keyword.get(options, :test) do
       "test"
     else

@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-defmodule Circuits.SPI.Nif do
+defmodule Circuits.SPI.LinuxBackendNIF do
   @moduledoc false
 
   @on_load {:load_nif, 0}
