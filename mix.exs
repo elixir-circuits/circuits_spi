@@ -7,24 +7,36 @@ defmodule Circuits.SPI.MixProject do
   @source_url "https://github.com/elixir-circuits/#{@app}"
 
   def project do
-    [
+    base = [
       app: @app,
       version: @version,
       elixir: "~> 1.13",
       description: @description,
       package: package(),
       source_url: @source_url,
-      compilers: [:elixir_make | Mix.compilers()],
-      make_targets: ["all"],
-      make_clean: ["clean"],
       docs: docs(),
-      aliases: [compile: [&set_make_env/1, "compile"], format: [&format_c/1, "format"]],
       start_permanent: Mix.env() == :prod,
       dialyzer: [
         flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs]
       ],
       deps: deps()
     ]
+
+    if build_spidev?() do
+      additions = [
+        compilers: [:elixir_make | Mix.compilers()],
+        elixirc_paths: ["lib", "backends/linux/lib"],
+        make_makefile: "Makefile",
+        make_cwd: "backends/linux",
+        make_targets: ["all"],
+        make_clean: ["clean"],
+        aliases: [compile: [&set_make_env/1, "compile"], format: [&format_c/1, "format"]]
+      ]
+
+      Keyword.merge(base, additions)
+    else
+      base
+    end
   end
 
   def cli do
@@ -32,23 +44,25 @@ defmodule Circuits.SPI.MixProject do
   end
 
   def application do
-    # IMPORTANT: This provides a default at runtime and at compile-time when
+    # IMPORTANT: This provides defaults at runtime and at compile-time when
     # circuits_spi is pulled in as a dependency.
-    [env: [default_backend: default_backend()]]
+    [env: [default_backend: default_backend(), build_spidev: false]]
   end
 
   defp package do
     %{
       files: [
         "CHANGELOG.md",
+        "backends/linux/c_src/*.[ch]",
+        "backends/linux/lib",
+        "backends/linux/Makefile",
         "lib",
-        "c_src/*.[ch]",
+        "LICENSES",
         "mix.exs",
-        "README.md",
         "NOTICE",
         "PORTING.md",
-        "LICENSES/*",
-        "Makefile"
+        "README.md",
+        "REUSE.toml"
       ],
       licenses: ["Apache-2.0"],
       links: %{
@@ -78,24 +92,43 @@ defmodule Circuits.SPI.MixProject do
     ]
   end
 
-  defp default_backend(), do: default_backend(Mix.env(), Mix.target())
-  defp default_backend(:test, _target), do: {Circuits.SPI.SPIDev, test: true}
+  defp build_spidev?() do
+    include_spidev = Application.get_env(:circuits_spi, :include_spidev)
 
-  defp default_backend(_env, :host) do
+    if include_spidev != nil do
+      # If the user set :include_spidev, then use it
+      include_spidev
+    else
+      # Otherwise, infer whether to build it based on the default_backend
+      # setting. If default_backend references it, then build it. If it
+      # references something else, then don't build. Default is to build.
+      default_backend = Application.get_env(:circuits_spi, :default_backend)
+
+      default_backend == nil or default_backend == Circuits.SPI.SPIDev or
+        (is_tuple(default_backend) and elem(default_backend, 0) == Circuits.SPI.SPIDev)
+    end
+  end
+
+  defp default_backend(), do: default_backend(Mix.env(), Mix.target(), build_spidev?())
+  defp default_backend(:test, _target, true), do: {Circuits.SPI.SPIDev, test: true}
+
+  defp default_backend(_env, :host, true) do
     case :os.type() do
       {:unix, :linux} -> Circuits.SPI.SPIDev
       _ -> {Circuits.SPI.SPIDev, test: true}
     end
   end
 
+  defp default_backend(_env, _target, false), do: Circuits.SPI.NilBackend
+
   # MIX_TARGET set to something besides host
-  defp default_backend(env, _not_host) do
+  defp default_backend(env, _not_host, true) do
     # If CROSSCOMPILE is set, then the Makefile will use the crosscompiler and
     # assume a Linux/Nerves build If not, then the NIF will be build for the
     # host, so use the default host backend
     case System.fetch_env("CROSSCOMPILE") do
       {:ok, _} -> Circuits.SPI.SPIDev
-      :error -> default_backend(env, :host)
+      :error -> default_backend(env, :host, true)
     end
   end
 
@@ -116,12 +149,8 @@ defmodule Circuits.SPI.MixProject do
     end
   end
 
-  defp spi_dev_compile_mode(Circuits.SPI.SPIDev) do
-    "normal"
-  end
-
   defp spi_dev_compile_mode(_other) do
-    "disabled"
+    "normal"
   end
 
   defp format_c([]) do
@@ -130,7 +159,7 @@ defmodule Circuits.SPI.MixProject do
         Mix.Shell.IO.info("Install astyle to format C code.")
 
       astyle ->
-        System.cmd(astyle, ["-n", "c_src/*.c"], into: IO.stream(:stdio, :line))
+        System.cmd(astyle, ["-n", "backends/linux/c_src/*.c"], into: IO.stream(:stdio, :line))
     end
   end
 
