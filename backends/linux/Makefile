@@ -41,7 +41,7 @@ LDFLAGS += -fPIC -shared
 else
 LDFLAGS += -undefined dynamic_lookup -dynamiclib
 ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
-$(error Circuits.SPI Linux SPIDev backend is not supported on non-Linux platforms. Review circuits_spi backend configuration or report an issue if improperly detected.)
+$(error Circuits.SPI Linux backend is not supported on non-Linux platforms. Review circuits_spi backend configuration or report an issue if improperly detected.)
 endif
 endif
 else
