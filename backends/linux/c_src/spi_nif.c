@@ -258,4 +258,4 @@ static ErlNifFunc nif_funcs[] =
     {"max_transfer_size", 0, spi_max_transfer_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
 };
 
-ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
+ERL_NIF_INIT(Elixir.Circuits.SPI.LinuxBackendNIF, nif_funcs, spi_load, NULL, NULL, spi_unload)

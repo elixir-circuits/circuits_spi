@@ -33,6 +33,6 @@ defmodule Circuits.SPI.NilBackend do
   """
   @impl Backend
   def info() do
-    %{name: __MODULE__}
+    %{backend: __MODULE__}
   end
 end
