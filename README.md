@@ -17,8 +17,8 @@
 `Circuits.SPI` v2.0 is an almost backward-compatible update to `Circuits.SPI`
 v1.x. Here's what's new:
 
-* Neither Linux nor Nerves is required anymore. In fact, the NIF supporting them
-  won't be compiled if you don't want it.
+* Linux or Nerves are no longer required. In fact, the Elixir and C code
+  supporting them won't be compiled if you don't want it.
 * Develop using simulated SPI devices with
   [CircuitsSim](https://github.com/elixir-circuits/circuits_sim)
 * Use USB-to-SPI adapters for development on your laptop (coming soon)
