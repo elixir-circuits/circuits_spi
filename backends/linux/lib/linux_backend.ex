@@ -21,23 +21,10 @@ defmodule Circuits.SPI.LinuxBackend do
 
   No supported options
   """
-  case System.get_env("CIRCUITS_SPI_SPIDEV") do
-    "test" ->
-      @impl Backend
-      def bus_names(_options), do: ["spidev0.0"]
-
-    "normal" ->
-      @impl Backend
-      def bus_names(_options) do
-        Path.wildcard("/dev/spidev*")
-        |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
-      end
-
-    _ ->
-      @impl Backend
-      def bus_names(_options) do
-        []
-      end
+  @impl Backend
+  def bus_names(_options) do
+    Path.wildcard("/dev/spidev*")
+    |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
   end
 
   @doc """

@@ -5,7 +5,6 @@
 
 defmodule CircuitsSPI.LinuxBackendTest do
   use ExUnit.Case
-  @moduletag :linux
 
   # All possible byte values needed for lsb <-> msb test
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)

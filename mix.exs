@@ -40,7 +40,6 @@ defmodule Circuits.SPI.MixProject do
     else
       base
     end
-    |> dbg()
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

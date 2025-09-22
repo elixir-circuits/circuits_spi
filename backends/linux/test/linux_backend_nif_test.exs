@@ -8,18 +8,18 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
   alias Circuits.SPI.LinuxBackendNIF
 
   describe "info/0" do
-    test "info identifies as a spi_dev_test and not a real spi driver" do
+    test "info identifies as expected" do
       info = LinuxBackendNIF.info()
 
       assert is_map(info)
-      assert info.name == :stub
+      assert info.name == :spidev
     end
   end
 
   describe "open/1" do
-    test "my_spidev work" do
-      {:ok, spi} = LinuxBackendNIF.open("my_spidev", 0, 8, 1_000_000, 10, false)
-      LinuxBackendNIF.close(spi)
+    test "bad spi device fails" do
+      assert {:error, :access_denied} =
+               LinuxBackendNIF.open("does_not_exist", 0, 8, 1_000_000, 10, false)
     end
   end
 
@@ -31,9 +31,7 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
                :code.ensure_loaded(Circuits.SPI.LinuxBackendNIF)
 
       # Try running something to verify that it works.
-      {:ok, spi} = LinuxBackendNIF.open("my_spidev", 0, 8, 1_000_000, 10, false)
-      assert is_reference(spi)
-      LinuxBackendNIF.close(spi)
+      _ = LinuxBackendNIF.info()
 
       assert true == :code.delete(Circuits.SPI.LinuxBackendNIF)
 
@@ -44,14 +42,14 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
   end
 
   test "setting backend to unknown value doesn't load the NIF" do
-    original_backend = Application.get_env(:circuits_spi, :backends)
+    original_backends = Application.get_env(:circuits_spi, :backends)
 
     # Unload the current code if loaded
     _ = :code.delete(Circuits.SPI.LinuxBackendNIF)
     _ = :code.purge(Circuits.SPI.LinuxBackendNIF)
 
     # Attempt loading. NIF shouldn't be loaded this time.
-    Application.put_env(:circuits_spi, :backends, Some.Other.Backend)
+    Application.put_env(:circuits_spi, :backends, [Some.Other.Backend])
 
     assert {:module, Circuits.SPI.LinuxBackendNIF} ==
              :code.ensure_loaded(Circuits.SPI.LinuxBackendNIF)
@@ -73,9 +71,7 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
                  :code.ensure_loaded(Circuits.SPI.LinuxBackendNIF)
 
         # Try running something to verify that it works.
-        {:ok, spi} = LinuxBackendNIF.open("my_spidev", 0, 8, 1_000_000, 10, false)
-        assert is_reference(spi)
-        LinuxBackendNIF.close(spi)
+        _ = LinuxBackendNIF.info()
 
         assert true == :code.delete(Circuits.SPI.LinuxBackendNIF)
 
