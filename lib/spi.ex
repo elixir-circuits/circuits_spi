@@ -80,9 +80,17 @@ defmodule Circuits.SPI do
   """
   @spec open(binary(), [spi_option()]) :: {:ok, Bus.t()} | {:error, term()}
   def open(bus_name, options \\ []) when is_binary(bus_name) do
-    {module, default_options} = default_backend()
-    module.open(bus_name, Keyword.merge(default_options, options))
+    try_open(backends(), bus_name, options, :not_found)
   end
+
+  defp try_open([{module, default_options} | rest], bus_name, options, _last_reason) do
+    case module.open(bus_name, Keyword.merge(default_options, options)) do
+      {:ok, _} = v -> v
+      {:error, reason} -> try_open(rest, bus_name, options, reason)
+    end
+  end
+
+  defp try_open([], _bus_name, _options, last_reason), do: {:error, last_reason}
 
   @doc """
   Return the configuration for this SPI bus
@@ -140,8 +148,7 @@ defmodule Circuits.SPI do
   """
   @spec bus_names() :: [binary()]
   def bus_names() do
-    {m, o} = default_backend()
-    m.bus_names(o)
+    backends() |> Enum.flat_map(fn {m, o} -> m.bus_names(o) end)
   end
 
   @doc """
@@ -149,19 +156,22 @@ defmodule Circuits.SPI do
 
   This may be helpful when debugging SPI issues.
   """
-  @spec info(backend() | nil) :: map()
+  @spec info(backend() | [backend()] | nil) :: [map()]
   def info(backend \\ nil)
 
-  def info(nil), do: info(default_backend())
-  def info({backend, _options}), do: backend.info()
+  def info(nil), do: info(backends())
+  def info(m) when is_atom(m), do: info([normalize_backend(m)])
+  def info({m, o} = v) when is_atom(m) and is_list(o), do: info([v])
 
-  defp default_backend() do
-    case Application.get_env(:circuits_spi, :default_backend) do
-      nil -> {Circuits.SPI.NilBackend, []}
-      m when is_atom(m) -> {m, []}
-      {m, o} = value when is_atom(m) and is_list(o) -> value
-    end
+  def info(backends) when is_list(backends),
+    do: backends |> Enum.map(&normalize_backend/1) |> Enum.map(fn {m, _o} -> m.info() end)
+
+  defp backends() do
+    Application.get_env(:circuits_spi, :backends, []) |> Enum.map(&normalize_backend/1)
   end
+
+  defp normalize_backend(m) when is_atom(m), do: {m, []}
+  defp normalize_backend({m, o} = value) when is_atom(m) and is_list(o), do: value
 
   @doc """
   Return the maximum transfer size in bytes

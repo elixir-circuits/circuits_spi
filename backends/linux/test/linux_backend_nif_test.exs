@@ -44,14 +44,14 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
   end
 
   test "setting backend to unknown value doesn't load the NIF" do
-    original_backend = Application.get_env(:circuits_spi, :default_backend)
+    original_backend = Application.get_env(:circuits_spi, :backends)
 
     # Unload the current code if loaded
     _ = :code.delete(Circuits.SPI.LinuxBackendNIF)
     _ = :code.purge(Circuits.SPI.LinuxBackendNIF)
 
     # Attempt loading. NIF shouldn't be loaded this time.
-    Application.put_env(:circuits_spi, :default_backend, Some.Other.Backend)
+    Application.put_env(:circuits_spi, :backends, Some.Other.Backend)
 
     assert {:module, Circuits.SPI.LinuxBackendNIF} ==
              :code.ensure_loaded(Circuits.SPI.LinuxBackendNIF)
@@ -61,7 +61,7 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
     # Cleanup
     assert true == :code.delete(Circuits.SPI.LinuxBackendNIF)
     assert false == :code.purge(Circuits.SPI.LinuxBackendNIF)
-    Application.put_env(:circuits_spi, :default_backend, original_backend)
+    Application.put_env(:circuits_spi, :backends, original_backends)
   end
 
   describe "load tests" do

@@ -11,9 +11,7 @@ defmodule CircuitsSPITest do
 
   test "info/0" do
     info = Circuits.SPI.info()
-
-    assert is_map(info)
-    assert info.name == Circuits.SPI.LoopBackend
+    assert info == [%{name: Circuits.SPI.LoopBackend}]
   end
 
   test "max buffer size returns an non-negative integer" do
