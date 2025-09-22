@@ -13,7 +13,6 @@
 # Variables to override:
 #
 # MIX_APP_PATH  path to the build directory
-# CIRCUITS_SPI_SPIDEV Backend to build - `"normal"` or `"test"`
 #
 # CC            C compiler
 # CROSSCOMPILE	crosscompiler prefix, if any
@@ -40,9 +39,6 @@ CFLAGS += -fPIC
 LDFLAGS += -fPIC -shared
 else
 LDFLAGS += -undefined dynamic_lookup -dynamiclib
-ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
-$(error Circuits.SPI Linux backend is not supported on non-Linux platforms. Review circuits_spi backend configuration or report an issue if improperly detected.)
-endif
 endif
 else
 # Cross-compiled build
@@ -50,17 +46,8 @@ LDFLAGS += -fPIC -shared
 CFLAGS += -fPIC
 endif
 
-ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
 # Enable real SPI calls. This is the default and works with Nerves
 SRC += c_src/hal_spidev.c
-else
-ifeq ($(CIRCUITS_SPI_SPIDEV),test)
-# Stub out ioctls and send back test data
-SRC += c_src/hal_stub.c
-else
-$(error Invalid CIRCUITS_SPI_SPIDEV value: $(CIRCUITS_SPI_SPIDEV))
-endif
-endif
 
 # Set Erlang-specific compile and linker flags
 ERL_CFLAGS ?= -I"$(ERL_EI_INCLUDE_DIR)"

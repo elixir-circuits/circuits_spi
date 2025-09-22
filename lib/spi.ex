@@ -167,7 +167,9 @@ defmodule Circuits.SPI do
     do: backends |> Enum.map(&normalize_backend/1) |> Enum.map(fn {m, _o} -> m.info() end)
 
   defp backends() do
-    Application.get_env(:circuits_spi, :backends, []) |> Enum.map(&normalize_backend/1)
+    Application.get_env(:circuits_spi, :backends, [])
+    |> List.wrap()
+    |> Enum.map(&normalize_backend/1)
   end
 
   defp normalize_backend(m) when is_atom(m), do: {m, []}
