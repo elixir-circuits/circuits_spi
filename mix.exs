@@ -1,13 +1,14 @@
 defmodule Circuits.SPI.MixProject do
   use Mix.Project
 
+  @app :circuits_spi
   @version "2.0.4"
   @description "Use SPI in Elixir"
-  @source_url "https://github.com/elixir-circuits/circuits_spi"
+  @source_url "https://github.com/elixir-circuits/#{@app}"
 
   def project do
     [
-      app: :circuits_spi,
+      app: @app,
       version: @version,
       elixir: "~> 1.13",
       description: @description,
@@ -39,6 +40,7 @@ defmodule Circuits.SPI.MixProject do
   defp package do
     %{
       files: [
+        "CHANGELOG.md",
         "lib",
         "c_src/*.[ch]",
         "mix.exs",
@@ -46,14 +48,13 @@ defmodule Circuits.SPI.MixProject do
         "NOTICE",
         "PORTING.md",
         "LICENSES/*",
-        "CHANGELOG.md",
         "Makefile"
       ],
       licenses: ["Apache-2.0"],
       links: %{
+        "Changelog" => "https://hexdocs.pm/#{@app}/changelog.html",
         "GitHub" => @source_url,
-        "REUSE Compliance" =>
-          "https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi"
+        "REUSE Compliance" => "https://api.reuse.software/info/github.com/elixir-circuits/#{@app}"
       }
     }
   end
