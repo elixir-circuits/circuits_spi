@@ -154,17 +154,29 @@ defmodule Circuits.SPI do
   @doc """
   Return info about the low level SPI interface
 
-  This may be helpful when debugging SPI issues.
+  The result is a list of tuples where the first element is the
+  expanded backend identifier that includes any options. The second
+  element is the return value from the backend's `info/1` callback.
+  The order returned matches the search order when opening a bus.
+  If order doesn't matter, running `Map.new/1` on the result may be helpful.
+  Example:
+
+      iex> Circuits.SPI.backend_info()
+      [
+        {{Circuits.SPI.Backend.Linux, []},
+         %{
+           description: "Linux spidev driver",
+           kernel_version: "5.4.51"
+         }}
+      ]
   """
-  @spec info(backend() | [backend()] | nil) :: [map()]
-  def info(backend \\ nil)
-
-  def info(nil), do: info(backends())
-  def info(m) when is_atom(m), do: info([normalize_backend(m)])
-  def info({m, o} = v) when is_atom(m) and is_list(o), do: info([v])
-
-  def info(backends) when is_list(backends),
-    do: backends |> Enum.map(&normalize_backend/1) |> Enum.map(fn {m, _o} -> m.info() end)
+  @spec backend_info([backend()] | backend()) :: [{backend(), map()}]
+  def backend_info(backends \\ backends()) do
+    backends
+    |> List.wrap()
+    |> Enum.map(&normalize_backend/1)
+    |> Enum.map(fn {m, o} = b -> {b, m.info(o)} end)
+  end
 
   defp backends() do
     Application.get_env(:circuits_spi, :backends, [])

@@ -10,8 +10,8 @@ defmodule CircuitsSPITest do
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)
 
   test "info/0" do
-    info = Circuits.SPI.info()
-    assert %{name: Circuits.SPI.LoopBackend} in info
+    info = Circuits.SPI.backend_info()
+    assert {{Circuits.SPI.LoopBackend, []}, %{description: "Loopback SPI backend"}} in info
   end
 
   test "max buffer size returns an non-negative integer" do

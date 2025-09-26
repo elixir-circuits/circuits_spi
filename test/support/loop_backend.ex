@@ -34,8 +34,8 @@ defmodule Circuits.SPI.LoopBackend do
   Return information about this backend
   """
   @impl Backend
-  def info() do
-    %{name: __MODULE__}
+  def info(_options) do
+    %{description: "Loopback SPI backend"}
   end
 
   defimpl Bus do
