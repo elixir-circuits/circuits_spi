@@ -55,9 +55,8 @@ defmodule Circuits.SPI.LinuxBackend do
   Return information about this backend
   """
   @impl Backend
-  def info() do
+  def info(_options) do
     LinuxBackendNIF.info()
-    |> Map.put(:backend, __MODULE__)
   end
 
   defimpl Bus do

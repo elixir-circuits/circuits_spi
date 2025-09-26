@@ -9,11 +9,14 @@ defmodule CircuitsSPI.LinuxBackendTest do
   # All possible byte values needed for lsb <-> msb test
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)
 
-  test "info/0" do
-    info = Circuits.SPI.info()
+  test "backend_info/0" do
+    info = Circuits.SPI.backend_info()
 
-    assert is_map(info)
-    assert info.name == Circuits.SPI.LinuxBackend
+    assert is_list(info)
+
+    {spidev, spidev_info} = hd(info)
+    assert spidev == {Circuits.SPI.LinuxBackend, []}
+    assert spidev_info.description == "Linux spidev driver"
   end
 
   test "max buffer size returns an non-negative integer" do

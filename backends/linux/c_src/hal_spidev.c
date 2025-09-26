@@ -6,6 +6,7 @@
 #include "spi_nif.h"
 #include <linux/spi/spidev.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
 #include <inttypes.h>
 
 #ifndef _IOC_SIZE_BITS
@@ -14,10 +15,29 @@
 #include <asm/ioctl.h>
 #endif
 
+static ERL_NIF_TERM encode_string(ErlNifEnv *env, const char *str)
+{
+    ERL_NIF_TERM term;
+    unsigned char *buffer = enif_make_new_binary(env, strlen(str), &term);
+    memcpy(buffer, str, strlen(str));
+    return term;
+}
+
 ERL_NIF_TERM hal_info(ErlNifEnv *env)
 {
     ERL_NIF_TERM info = enif_make_new_map(env);
-    enif_make_map_put(env, info, enif_make_atom(env, "name"), enif_make_atom(env, "spidev"), &info);
+    enif_make_map_put(env, info, enif_make_atom(env, "description"), encode_string(env, "Linux spidev driver"), &info);
+
+    struct utsname kernel_info;
+    const char *kernel_version = "unknown";
+    const char *machine = "unknown";
+    if (uname(&kernel_info) == 0) {
+        kernel_version = kernel_info.release;
+        machine = kernel_info.machine;
+    }
+    enif_make_map_put(env, info, enif_make_atom(env, "kernel_version"), encode_string(env, kernel_version), &info);
+    enif_make_map_put(env, info, enif_make_atom(env, "machine"), encode_string(env, machine), &info);
+
     return info;
 }
 
