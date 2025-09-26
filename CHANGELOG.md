@@ -1,3 +1,8 @@
+<!--
+  SPDX-License-Identifier: CC0-1.0
+  SPDX-FileCopyrightText: None
+-->
+
 # Changelog
 
 ## v2.0.4 - 2024-09-08

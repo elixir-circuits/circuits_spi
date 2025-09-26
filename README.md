@@ -1,3 +1,8 @@
+<!--
+  SPDX-License-Identifier: CC-BY-4.0
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+-->
+
 # Circuits.SPI
 
 [![Hex version](https://img.shields.io/hexpm/v/circuits_spi.svg "Hex version")](https://hex.pm/packages/circuits_spi)

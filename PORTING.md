@@ -1,3 +1,8 @@
+<!--
+  SPDX-License-Identifier: CC-BY-4.0
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+-->
+
 # Porting
 
 ## Upgrading Circuits.SPI 1.x projects to 2.0
