@@ -12,7 +12,7 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
       info = LinuxBackendNIF.info()
 
       assert is_map(info)
-      assert info.name == :spidev
+      assert info.description == "Linux spidev driver"
     end
   end
 
@@ -54,7 +54,7 @@ defmodule Circuits.SPI.LinuxBackendNIFTest do
     assert {:module, Circuits.SPI.LinuxBackendNIF} ==
              :code.ensure_loaded(Circuits.SPI.LinuxBackendNIF)
 
-    assert_raise UndefinedFunctionError, fn -> Circuits.SPI.info() end
+    assert_raise UndefinedFunctionError, fn -> Circuits.SPI.backend_info() end
 
     # Cleanup
     assert true == :code.delete(Circuits.SPI.LinuxBackendNIF)
