@@ -21,6 +21,15 @@ jobs:
       - checkout
       - run: reuse lint
 
+  rpi-test:
+    machine:
+      resource_class: elixir-circuits/rpi5
+    steps:
+      - checkout
+      - run: mix deps.get
+      - run: mix compile --warnings-as-errors
+      - run: mix test
+
   build-test:
     parameters:
       tag:
@@ -66,6 +75,7 @@ workflows:
   checks:
     jobs:
       - check-license
+      - rpi-test
       - build-test:
           name: << matrix.tag >>
           matrix:
