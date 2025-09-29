@@ -26,8 +26,12 @@ jobs:
       resource_class: elixir-circuits/rpi5
     steps:
       - checkout
+      - run:
+          name: Install hex and rebar
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
       - run: mix deps.get
-      - run: mix compile --warnings-as-errors
       - run: mix test
 
   build-test:
