@@ -26,7 +26,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
   end
 
   test "config comes back with documented defaults" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
+    {:ok, spi} = Circuits.SPI.open("spidev0.0")
 
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.mode == 0
@@ -38,7 +38,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
   end
 
   test "transfers loop back using stub" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
+    {:ok, spi} = Circuits.SPI.open("spidev0.0")
 
     {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
 
@@ -46,7 +46,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
   end
 
   test "transfers loop back using stub and lsb_first" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+    {:ok, spi} = Circuits.SPI.open("spidev0.0", lsb_first: true)
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.lsb_first == true
     assert config.sw_lsb_first == true
@@ -57,7 +57,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
   end
 
   test "iodata transfers work" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+    {:ok, spi} = Circuits.SPI.open("spidev0.0", lsb_first: true)
 
     message = ["Hello", [1, 2, 3, @test_data]]
     expected = IO.iodata_to_binary(message)
