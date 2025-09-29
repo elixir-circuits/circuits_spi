@@ -21,6 +21,19 @@ jobs:
       - checkout
       - run: reuse lint
 
+  rpi-test:
+    machine:
+      resource_class: elixir-circuits/rpi5
+    steps:
+      - checkout
+      - run:
+          name: Install hex and rebar
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+      - run: mix deps.get
+      - run: mix test
+
   build-test:
     parameters:
       tag:
@@ -66,6 +79,7 @@ workflows:
   checks:
     jobs:
       - check-license
+      - rpi-test
       - build-test:
           name: << matrix.tag >>
           matrix:
