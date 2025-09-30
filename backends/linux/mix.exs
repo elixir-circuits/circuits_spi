@@ -1,9 +1,9 @@
-defmodule Circuits.SPI.MixProject do
+defmodule Circuits.SPI.LinuxMixProject do
   use Mix.Project
 
-  @app :circuits_spi
+  @app :circuits_spi_linux
   @version "2.0.4"
-  @description "Use SPI in Elixir"
+  @description "CircuitsSPI Linux Backend"
   @source_url "https://github.com/elixir-circuits/#{@app}"
 
   def project do
@@ -14,7 +14,12 @@ defmodule Circuits.SPI.MixProject do
       description: @description,
       package: package(),
       source_url: @source_url,
+      compilers: [:elixir_make | Mix.compilers()],
       elixirc_paths: elixirc_paths(Mix.env()),
+      make_makefile: "Makefile",
+      make_targets: ["all"],
+      make_clean: ["clean"],
+      aliases: [format: [&format_c/1, "format"]],
       docs: docs(),
       start_permanent: Mix.env() == :prod,
       dialyzer: [
@@ -32,18 +37,19 @@ defmodule Circuits.SPI.MixProject do
   end
 
   def application do
-    [env: [backends: []]]
+    []
   end
 
   defp package do
     %{
       files: [
         "CHANGELOG.md",
+        "c_src/*.[ch]",
         "lib",
         "LICENSES",
+        "Makefile",
         "mix.exs",
         "NOTICE",
-        "PORTING.md",
         "README.md",
         "REUSE.toml"
       ],
@@ -58,19 +64,33 @@ defmodule Circuits.SPI.MixProject do
 
   defp deps() do
     [
+      {:circuits_spi, "~> 2.0", path: "../.."},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:credo, "~> 1.6", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.2", only: :dev, runtime: false}
+      {:dialyxir, "~> 1.2", only: :dev, runtime: false},
+      {:elixir_make, "~> 0.6", runtime: false}
     ]
   end
 
   defp docs do
     [
       assets: %{"assets" => "assets"},
-      extras: ["README.md", "PORTING.md", "CHANGELOG.md"],
+      extras: ["README.md", "CHANGELOG.md"],
       main: "readme",
       source_ref: "v#{@version}",
       source_url: @source_url
     ]
   end
+
+  defp format_c([]) do
+    case System.find_executable("astyle") do
+      nil ->
+        Mix.Shell.IO.info("Install astyle to format C code.")
+
+      astyle ->
+        System.cmd(astyle, ["-n", "c_src/*.c"], into: IO.stream(:stdio, :line))
+    end
+  end
+
+  defp format_c(_args), do: true
 end
