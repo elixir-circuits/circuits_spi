@@ -26,7 +26,7 @@
 PREFIX = $(MIX_APP_PATH)/priv
 BUILD  = $(MIX_APP_PATH)/obj
 
-NIF = $(PREFIX)/spi_nif.so
+NIF = $(PREFIX)/circuits_spi_linux.so
 
 SRC = c_src/spi_nif.c
 CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter -pedantic
