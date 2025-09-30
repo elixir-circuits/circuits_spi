@@ -25,6 +25,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
     assert max_transfer_size >= 0
   end
 
+  @tag :spidev
   test "config comes back with documented defaults" do
     {:ok, spi} = Circuits.SPI.open("spidev0.0")
 
@@ -37,7 +38,8 @@ defmodule CircuitsSPI.LinuxBackendTest do
     assert config.sw_lsb_first == false
   end
 
-  test "transfers loop back using stub" do
+  @tag :spidev
+  test "transfers loop back" do
     {:ok, spi} = Circuits.SPI.open("spidev0.0")
 
     {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
@@ -45,7 +47,8 @@ defmodule CircuitsSPI.LinuxBackendTest do
     assert result == @test_data
   end
 
-  test "transfers loop back using stub and lsb_first" do
+  @tag :spidev
+  test "transfers loop back using lsb_first" do
     {:ok, spi} = Circuits.SPI.open("spidev0.0", lsb_first: true)
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.lsb_first == true
@@ -56,6 +59,7 @@ defmodule CircuitsSPI.LinuxBackendTest do
     assert result == @test_data
   end
 
+  @tag :spidev
   test "iodata transfers work" do
     {:ok, spi} = Circuits.SPI.open("spidev0.0", lsb_first: true)
 
