@@ -19,7 +19,7 @@ defmodule Circuits.SPI.NilBackend do
   def bus_names(_options), do: []
 
   @doc """
-  Open an I2C bus
+  Open an SPI bus
 
   No supported options.
   """
