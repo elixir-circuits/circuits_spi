@@ -6,7 +6,7 @@
 # Circuits.SPI
 
 [![Hex version](https://img.shields.io/hexpm/v/circuits_spi.svg "Hex version")](https://hex.pm/packages/circuits_spi)
-[![API docs](https://img.shields.io/hexpm/v/circuits_spi.svg?label=hexdocs "API docs")](https://hexdocs.pm/circuits_spi/Circuits.SPI.html)
+[![API docs](https://img.shields.io/hexpm/v/circuits_spi.svg?label=hexdocs "API docs")](https://circuits-spi.hexdocs.pm/Circuits.SPI.html)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/elixir-circuits/circuits_spi/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/elixir-circuits/circuits_spi/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-circuits/circuits_spi)](https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi)
 
@@ -121,7 +121,7 @@ iex> volts = counts / 1023 * 3.3
 
 As shown above, you'll find out that Elixir's binary pattern matching is
 extremely convenient when working with hardware. More information can be
-found in the [Kernel.SpecialForms documentation](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)
+found in the [Kernel.SpecialForms documentation](https://elixir.hexdocs.pm/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)
 and by running `h <<>>` at the IEx prompt.
 
 ## FAQ
@@ -156,7 +156,7 @@ kernel and that the device tree configures it.
 
 SPI bus options like frequency (`:speed_hz`) and bits per word (`:bit_per_word`)
 are set as optional parameters to
-[`Circuits.SPI.open/2`](https://hexdocs.pm/circuits_spi/Circuits.SPI.html#open/2).
+[`Circuits.SPI.open/2`](https://circuits-spi.hexdocs.pm/Circuits.SPI.html#open/2).
 
 For example, the following configures the SPI bus to run at 122,000 Hz:
 
