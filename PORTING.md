@@ -11,7 +11,7 @@ Circuits.SPI 2.0 supports alternative SPI hardware and the ability to mock or
 emulate devices via backends. The Linux spi-dev backend is the default and this
 matches Circuits.SPI 1.x. Most projects won't need any changes other than to
 update the dependency in `mix.exs`. If upgrading a library, The following
-dependency specification is recommended to allow both `circuits_i2c` versions:
+dependency specification is recommended to allow both `circuits_spi` versions:
 
 ```elixir
    {:circuits_spi, "~> 2.0 or ~> 1.0"}
