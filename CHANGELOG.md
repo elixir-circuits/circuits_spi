@@ -5,6 +5,23 @@
 
 # Changelog
 
+## v2.1.0 - 2026-07-17
+
+* New features
+  * Transfers greater than the max transfer size are supported. They're
+    automatically segmented in the NIF. While you can still segment in Elixir,
+    allowing Circuits.SPI to do it is faster. You'll still see a short pause
+    between segments and the CS line will toggle between transfers if you're
+    using it.
+  * Add `SPI.read/2` and `SPI.write/2` to avoid a buffer allocation either for
+    the written data or the read data when it's unconditionally thrown away.
+    This is a small performance improvement when using devices requiring large
+    transfers like displays.
+
+* Changes
+  * Add more info to `Circuits.SPI.info/0`
+  * Various documentation improvements throughout
+
 ## v2.0.4 - 2024-09-08
 
 Only Elixir 1.13 and later are supported now. There are no known issues with
