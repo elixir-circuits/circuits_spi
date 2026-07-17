@@ -78,6 +78,16 @@ defmodule Circuits.SPI.SPIDev do
     end
 
     @impl Bus
+    def write(%Circuits.SPI.SPIDev{ref: ref}, data) do
+      Nif.write(ref, data)
+    end
+
+    @impl Bus
+    def read(%Circuits.SPI.SPIDev{ref: ref}, len) do
+      Nif.read(ref, len)
+    end
+
+    @impl Bus
     def close(%Circuits.SPI.SPIDev{ref: ref}) do
       Nif.close(ref)
     end

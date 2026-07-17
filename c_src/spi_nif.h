@@ -88,10 +88,10 @@ void hal_spi_close(int fd);
  *
  * @param fd the file descriptor returned from hal_spi_open
  * @param config the SPI configuration to use
- * @param to_write
- * @param to_read
- * @param len
- * @return
+ * @param to_write buffer to write or NULL if writes are ignored
+ * @param to_read buffer to store read data or NULL if not interested
+ * @param len the number of bytes to transfer
+ * @return 0 on success or -1 on error
  */
 int hal_spi_transfer(int fd,
                      const struct SpiConfig *config,
