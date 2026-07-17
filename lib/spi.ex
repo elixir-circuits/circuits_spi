@@ -134,13 +134,45 @@ defmodule Circuits.SPI do
   """
   @spec transfer!(Bus.t(), iodata()) :: binary()
   def transfer!(spi_bus, data) do
-    case transfer(spi_bus, data) do
-      {:error, reason} ->
-        raise "SPI failure: " <> to_string(reason)
+    transfer(spi_bus, data) |> result1!()
+  end
 
-      {:ok, result} ->
-        result
-    end
+  @doc """
+  Write data
+
+  This works identically to transfer/2 except that it ignores all received data.
+  """
+  @spec write(Bus.t(), iodata()) :: :ok | {:error, term()}
+  def write(spi_bus, data) do
+    Bus.write(spi_bus, data)
+  end
+
+  @doc """
+  Write data and raise on error
+  """
+  @spec write!(Bus.t(), iodata()) :: :ok
+  def write!(spi_bus, data) do
+    write(spi_bus, data) |> result2!()
+  end
+
+  @doc """
+  Read len bytes
+
+  This works identically to transfer/2 except that the bits written are whatever
+  the controller chooses. The expectation is that the device on the other side
+  is ignoring them anyway.
+  """
+  @spec read(Bus.t(), pos_integer()) :: {:ok, binary()} | {:error, term()}
+  def read(spi_bus, len) do
+    Bus.read(spi_bus, len)
+  end
+
+  @doc """
+  Read data and raise on error
+  """
+  @spec read!(Bus.t(), pos_integer()) :: binary()
+  def read!(spi_bus, len) do
+    read(spi_bus, len) |> result1!()
   end
 
   @doc """
@@ -201,6 +233,13 @@ defmodule Circuits.SPI do
 
   defp normalize_backend(m) when is_atom(m), do: {m, []}
   defp normalize_backend({m, o} = value) when is_atom(m) and is_list(o), do: value
+
+  # The two functions here are for Dialyzer
+  defp result1!({:ok, result}), do: result
+  defp result1!({:error, reason}), do: raise("SPI failure: " <> to_string(reason))
+
+  defp result2!(:ok), do: :ok
+  defp result2!({:error, reason}), do: raise("SPI failure: " <> to_string(reason))
 
   @doc """
   Return the maximum transfer size in bytes

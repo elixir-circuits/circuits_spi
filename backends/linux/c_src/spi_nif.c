@@ -221,6 +221,73 @@ static ERL_NIF_TERM spi_transfer(ErlNifEnv *env, int argc, const ERL_NIF_TERM ar
     return enif_make_tuple2(env, atom_ok, bin_read);
 }
 
+static ERL_NIF_TERM spi_write(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    struct SpiNifPriv *priv = enif_priv_data(env);
+    struct SpiNifRes *res;
+    ErlNifBinary bin_write;
+    unsigned char *to_write;
+    size_t transfer_size;
+
+    debug("spi_write");
+    if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res) ||
+            !enif_inspect_iolist_as_binary(env, argv[1], &bin_write))
+        return enif_make_badarg(env);
+
+    transfer_size = bin_write.size;
+
+    if (res->config.sw_lsb_first) {
+        to_write = enif_alloc(transfer_size);
+        if (!to_write)
+            return enif_make_tuple2(env, atom_error,
+                                    enif_make_atom(env, "alloc_failed"));
+        reverse_bits(to_write, bin_write.data, transfer_size);
+    } else {
+        to_write = bin_write.data;
+    }
+
+    if (hal_spi_transfer(res->fd, &res->config, to_write, NULL, transfer_size) < 0) {
+        if (res->config.sw_lsb_first)
+            enif_free(to_write);
+        return enif_make_tuple2(env, atom_error,
+                                enif_make_atom(env, "transfer_failed"));
+    }
+
+    if (res->config.sw_lsb_first)
+        enif_free(to_write);
+
+    return atom_ok;
+}
+
+static ERL_NIF_TERM spi_read(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    struct SpiNifPriv *priv = enif_priv_data(env);
+    struct SpiNifRes *res;
+    ERL_NIF_TERM bin_read;
+    unsigned char *raw_bin_read;
+    unsigned int transfer_size;
+
+    debug("spi_read");
+    if (!enif_get_resource(env, argv[0], priv->spi_nif_res_type, (void **)&res) ||
+            !enif_get_uint(env, argv[1], &transfer_size))
+        return enif_make_badarg(env);
+
+    raw_bin_read = enif_make_new_binary(env, transfer_size, &bin_read);
+    if (!raw_bin_read)
+        return enif_make_tuple2(env, atom_error,
+                                enif_make_atom(env, "alloc_failed"));
+
+    if (hal_spi_transfer(res->fd, &res->config, NULL, raw_bin_read, transfer_size) < 0)
+        return enif_make_tuple2(env, atom_error,
+                                enif_make_atom(env, "transfer_failed"));
+
+    if (res->config.sw_lsb_first) {
+        reverse_bits(raw_bin_read, raw_bin_read, transfer_size);
+    }
+
+    return enif_make_tuple2(env, atom_ok, bin_read);
+}
+
 static ERL_NIF_TERM spi_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     struct SpiNifPriv *priv = enif_priv_data(env);
@@ -253,6 +320,8 @@ static ErlNifFunc nif_funcs[] =
     {"open", 6, spi_open, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"config", 1, spi_config, 0},
     {"transfer", 2, spi_transfer, ERL_NIF_DIRTY_JOB_IO_BOUND},
+    {"write", 2, spi_write, ERL_NIF_DIRTY_JOB_IO_BOUND},
+    {"read", 2, spi_read, ERL_NIF_DIRTY_JOB_IO_BOUND},
     {"close", 1, spi_close, 0},
     {"info", 0, spi_info, 0},
     {"max_transfer_size", 0, spi_max_transfer_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
