@@ -63,4 +63,18 @@ defmodule CircuitsSPITest do
 
     assert result == expected
   end
+
+  test "reads return the right number of bytes" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev")
+
+    {:ok, result} = Circuits.SPI.read(spi, 100)
+
+    assert byte_size(result) == 100
+  end
+
+  test "write doesn't crash" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev")
+
+    :ok = Circuits.SPI.write(spi, <<1, 2, 3, 4>>)
+  end
 end
