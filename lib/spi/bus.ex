@@ -28,6 +28,24 @@ defprotocol Circuits.SPI.Bus do
   def transfer(bus, data)
 
   @doc """
+  Write data
+
+  This works identically to transfer/2 except that it ignores all received data.
+  """
+  @spec write(t(), iodata()) :: :ok | {:error, term()}
+  def write(bus, data)
+
+  @doc """
+  Read len bytes
+
+  This works identically to transfer/2 except that the bits written are whatever
+  the controller chooses. The expectation is that the device on the other side
+  is ignoring them anyway.
+  """
+  @spec read(t(), pos_integer()) :: {:ok, binary()} | {:error, term()}
+  def read(bus, len)
+
+  @doc """
   Free up resources associated with the bus
 
   Well behaved backends free up their resources with the help of the Erlang garbage collector. However, it is good

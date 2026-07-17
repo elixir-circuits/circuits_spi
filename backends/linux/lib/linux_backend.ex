@@ -11,8 +11,8 @@ defmodule Circuits.SPI.LinuxBackend do
   @behaviour Circuits.SPI.Backend
 
   alias Circuits.SPI.Backend
-  alias Circuits.SPI.LinuxBackendNIF
   alias Circuits.SPI.Bus
+  alias Circuits.SPI.LinuxBackendNIF
 
   defstruct [:ref]
 
@@ -68,6 +68,16 @@ defmodule Circuits.SPI.LinuxBackend do
     @impl Bus
     def transfer(%Circuits.SPI.LinuxBackend{ref: ref}, data) do
       LinuxBackendNIF.transfer(ref, data)
+    end
+
+    @impl Bus
+    def write(%Circuits.SPI.LinuxBackend{ref: ref}, data) do
+      LinuxBackendNIF.write(ref, data)
+    end
+
+    @impl Bus
+    def read(%Circuits.SPI.LinuxBackend{ref: ref}, len) do
+      LinuxBackendNIF.read(ref, len)
     end
 
     @impl Bus

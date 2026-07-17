@@ -19,6 +19,8 @@ defmodule Circuits.SPI.LinuxBackendNIF do
 
   def config(_ref), do: :erlang.nif_error(:nif_not_loaded)
   def transfer(_ref, _data), do: :erlang.nif_error(:nif_not_loaded)
+  def write(_ref, _data), do: :erlang.nif_error(:nif_not_loaded)
+  def read(_ref, _len), do: :erlang.nif_error(:nif_not_loaded)
   def close(_ref), do: :erlang.nif_error(:nif_not_loaded)
   def max_transfer_size(), do: :erlang.nif_error(:nif_not_loaded)
   def info(), do: :erlang.nif_error(:nif_not_loaded)
