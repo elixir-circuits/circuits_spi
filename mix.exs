@@ -41,14 +41,15 @@ defmodule Circuits.SPI.MixProject do
     %{
       files: [
         "CHANGELOG.md",
-        "lib",
         "c_src/*.[ch]",
+        "lib",
+        "LICENSES/*",
+        "Makefile",
         "mix.exs",
-        "README.md",
         "NOTICE",
         "PORTING.md",
-        "LICENSES/*",
-        "Makefile"
+        "README.md",
+        "REUSE.toml"
       ],
       licenses: ["Apache-2.0"],
       links: %{
