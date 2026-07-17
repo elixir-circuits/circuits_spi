@@ -102,8 +102,19 @@ defmodule Circuits.SPI do
   will be a binary of the same length as `data`.
 
   Large data buffers are segmented into max-transfer-size chunks internally.
-  This results in multiple SPI transfers and chip select may be deasserted between chunks.
-  If you're observing the SPI bus with a logic analyzer, you may see a short pause between chunks.
+  This results in multiple SPI transfers and chip select may be deasserted
+  between chunks. If you're observing the SPI bus with a logic analyzer, you
+  may see a short pause between chunks.
+
+  If you have an operation that writes a number of bytes and then reads back,
+  a common pattern is to use `t:iodata/0`. This example writes 0x1, 0xff and
+  then reads 100 bytes all in one transfer.
+
+  ```
+  iex> {:ok, <<_, _, result::binary>>} = Circuits.SPI.transfer(spi, [<<0x1, 0xff>>, :binary.copy(<<0>>, 100)])
+  iex> byte_size(result)
+  100
+  ```
   """
   @spec transfer(Bus.t(), iodata()) :: {:ok, binary()} | {:error, term()}
   def transfer(spi_bus, data) do
