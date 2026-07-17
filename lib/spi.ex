@@ -100,6 +100,10 @@ defmodule Circuits.SPI do
 
   Since each SPI transfer sends and receives simultaneously, the return value
   will be a binary of the same length as `data`.
+
+  Large data buffers are segmented into max-transfer-size chunks internally.
+  This results in multiple SPI transfers and chip select may be deasserted between chunks.
+  If you're observing the SPI bus with a logic analyzer, you may see a short pause between chunks.
   """
   @spec transfer(Bus.t(), iodata()) :: {:ok, binary()} | {:error, term()}
   def transfer(spi_bus, data) do

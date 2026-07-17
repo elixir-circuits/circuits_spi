@@ -17,7 +17,7 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
 ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 {
     // Use Linux's default maximum transfer size
-    return enif_make_uint64(env, 4096);
+    return enif_make_uint(env, 4096);
 }
 
 int hal_spi_open(const char *device_path,
@@ -43,7 +43,10 @@ int hal_spi_transfer(int fd,
                      size_t len)
 {
     // Loop back.
-    memcpy(to_read, to_write, len);
+    if (to_read != NULL && to_write != NULL)
+        memcpy(to_read, to_write, len);
+    else if (to_read != NULL)
+        memset(to_read, 0, len);
 
     return 0;
 }

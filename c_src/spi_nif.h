@@ -43,6 +43,7 @@ struct SpiConfig {
     unsigned int delay_us;
     int lsb_first;
     int sw_lsb_first;
+    unsigned int max_transfer_size;
 };
 
 /**
@@ -56,7 +57,7 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env);
 /**
  * Return max transfer size about the HAL.
  *
- * This should return an unsigned 64-bit int value that indicates the
+ * This should return an unsigned int value that indicates the
  * maximum transfer size in bytes
  */
 ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env);
