@@ -15,6 +15,27 @@
 #include <asm/ioctl.h>
 #endif
 
+static unsigned int get_max_transfer_size()
+{
+    unsigned int bufsiz = 0;
+
+    // Linux puts this information (if available) in /sys/module/spidev/parameters/bufsiz
+    FILE *fp = fopen("/sys/module/spidev/parameters/bufsiz","r");
+    if (fp != NULL) {
+        if (fscanf(fp, "%u", &bufsiz) != 1) {
+            bufsiz = 0;
+        }
+        fclose(fp);
+    }
+
+    if (bufsiz == 0) {
+        // if /sys/module/spidev/parameters/bufsiz is not available
+        // then we return 4096, a safe minimum size
+        bufsiz = 4096;
+    }
+    return bufsiz;
+}
+
 static ERL_NIF_TERM encode_string(ErlNifEnv *env, const char *str)
 {
     ERL_NIF_TERM term;
@@ -43,24 +64,7 @@ ERL_NIF_TERM hal_info(ErlNifEnv *env)
 
 ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env)
 {
-    uint64_t bufsiz = 0;
-
-    // Linux puts this information (if available) in /sys/module/spidev/parameters/bufsiz
-    FILE *file = fopen("/sys/module/spidev/parameters/bufsiz","r");
-    if (file != NULL) {
-        if (fscanf(file, "%"PRIu64, &bufsiz) != 1) {
-            bufsiz = 0;
-        }
-        fclose(file);
-    }
-
-    if (bufsiz == 0) {
-        // if /sys/module/spidev/parameters/bufsiz is not available
-        // then we return 4096, a safe minimum size
-        bufsiz = 4096;
-    }
-
-    return enif_make_uint64(env, bufsiz);
+    return enif_make_uint(env, get_max_transfer_size());
 }
 
 int hal_spi_open(const char *device_path,
@@ -107,6 +111,8 @@ int hal_spi_open(const char *device_path,
         // If not supported by hardware, reverse bits in software
         config->sw_lsb_first = config->lsb_first;
     }
+
+    config->max_transfer_size = get_max_transfer_size();
 
     return fd;
 }
