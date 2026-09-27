@@ -122,16 +122,21 @@ void hal_spi_close(int fd)
     close(fd);
 }
 
-static void chunk(struct spi_ioc_transfer *tfer,
-                  const struct SpiConfig *config,
-                  const uint8_t *to_write,
-                  uint8_t *to_read,
-                  size_t len)
+static void init_transfer(struct spi_ioc_transfer *tfer,
+                  const struct SpiConfig *config)
 {
     memset(tfer, 0, sizeof(*tfer));
     tfer->speed_hz = config->speed_hz;
-    tfer->delay_usecs = (uint16_t) config->delay_us;
     tfer->bits_per_word = (uint8_t) config->bits_per_word;
+}
+
+static void chunk(struct spi_ioc_transfer *tfer,
+                  const uint8_t *to_write,
+                  uint8_t *to_read,
+                  size_t len,
+                  uint16_t delay_us)
+{
+    tfer->delay_usecs = delay_us;
 
     // The Linux header spidev.h expects pointers to be in 64-bit integers (__u64),
     // but pointers on Raspberry Pi are only 32 bits.
@@ -154,9 +159,11 @@ int hal_spi_transfer(int fd,
     uint8_t *r = to_read;
     unsigned int max_len = config->max_transfer_size;
 
+    init_transfer(&tfer, config);
+
     size_t len_left = len;
     while (len_left > max_len) {
-        chunk(&tfer, config, w, r, max_len);
+        chunk(&tfer, w, r, max_len, 0);
         if (ioctl(fd, SPI_IOC_MESSAGE(1), &tfer) < 0)
             return -1;
 
@@ -166,7 +173,7 @@ int hal_spi_transfer(int fd,
             r += max_len;
         len_left -= max_len;
     }
-    chunk(&tfer, config, w, r, len_left);
+    chunk(&tfer, w, r, len_left, config->delay_us);
 
     return ioctl(fd, SPI_IOC_MESSAGE(1), &tfer);
 }
