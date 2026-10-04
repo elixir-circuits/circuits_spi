@@ -45,8 +45,8 @@ defmodule Circuits.SPI.MixProject do
     end
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(:test), do: ["lib", "backends/atomvm/lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib", "backends/atomvm/lib"]
 
   def cli do
     [preferred_envs: %{docs: :docs, "hex.publish": :docs, "hex.build": :docs}]
@@ -62,6 +62,7 @@ defmodule Circuits.SPI.MixProject do
     %{
       files: [
         "CHANGELOG.md",
+        "backends/atomvm/lib",
         "backends/linux/c_src/*.[ch]",
         "backends/linux/lib",
         "backends/linux/Makefile",

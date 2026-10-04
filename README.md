@@ -136,6 +136,32 @@ extremely convenient when working with hardware. More information can be
 found in the [Kernel.SpecialForms documentation](https://elixir.hexdocs.pm/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)
 and by running `h <<>>` at the IEx prompt.
 
+## Getting started on AtomVM
+
+AtomVM requires SPI pin and peripheral configuration when opening a bus.
+Configure the built-in AtomVM backend with a map of names to bus and device
+settings:
+
+```elixir
+config :circuits_spi,
+  backends: [
+    {Circuits.SPI.AtomVMBackend,
+     buses: %{
+       "display" => [
+         bus_config: [sclk: 18, mosi: 23, miso: 19, peripheral: "spi2"],
+         device_config: [cs: 5]
+       ]
+     }}
+  ]
+```
+
+The `"display"` name is arbitrarily assigned by the application. The pin
+numbers and peripheral names depend on the AtomVM platform and board. After
+configuration, use `"display"` like any other Circuits.SPI bus name.
+The standard `:mode` and `:speed_hz` options to `Circuits.SPI.open/2` override
+the configured device defaults. AtomVM currently supports 8-bit, MSB-first
+transfers through this backend.
+
 ## FAQ
 
 ### How do I only receive data?
