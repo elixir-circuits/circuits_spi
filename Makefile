@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2018 Frank Hunleth
 # SPDX-FileCopyrightText: 2018 Mark Sebald
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -78,6 +79,11 @@ all: install
 install: $(PREFIX) $(BUILD) $(NIF)
 
 $(OBJ): $(HEADERS) Makefile
+
+# Order-only, so a parallel make creates the directories before writing into
+# them. Listing them next to $(NIF) in `install` does not order anything.
+$(OBJ): | $(BUILD)
+$(NIF): | $(PREFIX)
 
 $(BUILD)/%.o: c_src/%.c
 	@echo " CC $(notdir $@)"
