@@ -55,10 +55,10 @@ struct SpiConfig {
 ERL_NIF_TERM hal_info(ErlNifEnv *env);
 
 /**
- * Return max transfer size about the HAL.
+ * Return the maximum transfer size supported by the HAL.
  *
  * This should return an unsigned int value that indicates the
- * maximum transfer size in bytes
+ * maximum transfer size in bytes.
  */
 ERL_NIF_TERM hal_max_transfer_size(ErlNifEnv *env);
 
@@ -89,7 +89,7 @@ void hal_spi_close(int fd);
  * @param fd the file descriptor returned from hal_spi_open
  * @param config the SPI configuration to use
  * @param to_write buffer to write or NULL if writes are ignored
- * @param to_read buffer to store read data or NULL if not interested
+ * @param to_read buffer to store read data or NULL if received data is ignored
  * @param len the number of bytes to transfer
  * @return 0 on success or -1 on error
  */

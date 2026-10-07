@@ -6,7 +6,7 @@
 defmodule CircuitsSPITest do
   use ExUnit.Case
 
-  # All possible byte values needed for lsb <-> msb test
+  # All possible byte values needed for the LSB <-> MSB test
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)
 
   test "info/0" do
@@ -16,7 +16,7 @@ defmodule CircuitsSPITest do
     assert info.backend == Circuits.SPI.SPIDev
   end
 
-  test "max buffer size returns an non-negative integer" do
+  test "max buffer size returns a non-negative integer" do
     max_transfer_size = Circuits.SPI.max_transfer_size()
     assert is_integer(max_transfer_size)
     assert max_transfer_size >= 0

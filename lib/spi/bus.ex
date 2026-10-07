@@ -12,8 +12,8 @@ defprotocol Circuits.SPI.Bus do
   @doc """
   Return the configuration for this SPI bus
 
-  The configuration could be different that what was given to `open/2` if
-  the device had to change it for it to work.
+  The configuration could differ from what was given to `Circuits.SPI.open/2` if
+  the device had to adjust it to work.
   """
   @spec config(t()) :: {:ok, SPI.spi_option_map()} | {:error, term()}
   def config(bus)
@@ -30,15 +30,15 @@ defprotocol Circuits.SPI.Bus do
   @doc """
   Write data
 
-  This works identically to transfer/2 except that it ignores all received data.
+  This works identically to `transfer/2` except that it ignores all received data.
   """
   @spec write(t(), iodata()) :: :ok | {:error, term()}
   def write(bus, data)
 
   @doc """
-  Read len bytes
+  Read `len` bytes
 
-  This works identically to transfer/2 except that the bits written are whatever
+  This works identically to `transfer/2` except that the bits written are whatever
   the controller chooses. The expectation is that the device on the other side
   is ignoring them anyway.
   """
@@ -48,9 +48,10 @@ defprotocol Circuits.SPI.Bus do
   @doc """
   Free up resources associated with the bus
 
-  Well behaved backends free up their resources with the help of the Erlang garbage collector. However, it is good
-  practice for users to call `Circuits.SPI.close/1` (and hence this function) so that
-  limited resources are freed before they're needed again.
+  Well-behaved backends free up their resources with the help of the Erlang
+  garbage collector. However, it is good practice for users to call
+  `Circuits.SPI.close/1` (and hence this function) so that limited resources are
+  freed before they're needed again.
   """
   @spec close(t()) :: :ok
   def close(bus)
@@ -59,7 +60,7 @@ defprotocol Circuits.SPI.Bus do
   Return the maximum transfer size in bytes
 
   The number of bytes that can be sent and received at a time
-  may be capped by the low level SPI interface. For example,
+  may be capped by the low-level SPI interface. For example,
   the Linux `spidev` driver allocates its transfer buffer at
   initialization based on the `bufsiz` parameter and rejects
   requests that won't fit.

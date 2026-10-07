@@ -19,7 +19,7 @@ defmodule Circuits.SPI.SPIDev do
   @doc """
   Return the SPI bus names on this system
 
-  No supported options
+  No options are supported.
   """
   case System.get_env("CIRCUITS_SPI_SPIDEV") do
     "test" ->

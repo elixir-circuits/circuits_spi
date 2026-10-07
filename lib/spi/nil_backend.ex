@@ -13,7 +13,7 @@ defmodule Circuits.SPI.NilBackend do
   @doc """
   Return the SPI bus names on this system
 
-  No supported options
+  No options are supported.
   """
   @impl Backend
   def bus_names(_options), do: []
@@ -21,7 +21,7 @@ defmodule Circuits.SPI.NilBackend do
   @doc """
   Open an SPI bus
 
-  No supported options.
+  No options are supported.
   """
   @impl Backend
   def open(_bus_name, _options) do
