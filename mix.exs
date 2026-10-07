@@ -95,8 +95,8 @@ defmodule Circuits.SPI.MixProject do
   # MIX_TARGET set to something besides host
   defp default_backend(env, _not_host) do
     # If CROSSCOMPILE is set, then the Makefile will use the crosscompiler and
-    # assume a Linux/Nerves build If not, then the NIF will be build for the
-    # host, so use the default host backend
+    # assume a Linux/Nerves build. If not, then the NIF will be built for the
+    # host, so use the default host backend.
     case System.fetch_env("CROSSCOMPILE") do
       {:ok, _} -> Circuits.SPI.SPIDev
       :error -> default_backend(env, :host)
@@ -105,7 +105,7 @@ defmodule Circuits.SPI.MixProject do
 
   defp set_make_env(_args) do
     # Since user configuration hasn't been loaded into the application
-    # environment when `project/1` is called, load it here for building
+    # environment when `project/0` is called, load it here for building
     # the NIF.
     backend = Application.get_env(:circuits_spi, :default_backend, default_backend())
 

@@ -8,16 +8,16 @@
 defmodule Circuits.SPI do
   @moduledoc """
   This module enables Elixir programs to interact with hardware that's connected
-  via a SPI bus.
+  via an SPI bus.
   """
 
   alias Circuits.SPI.Bus
 
   @typedoc """
-  Backends specify an implementation of a Circuits.SPI.Backend behaviour
+  Backends specify an implementation of the `Circuits.SPI.Backend` behaviour
 
-  The second parameter of the Backend 2-tuple is a list of options. These are
-  passed to the behaviour function call implementations.
+  The second element of the backend 2-tuple is a list of options. These are
+  passed to the backend's callback implementations.
   """
   @type backend() :: {module(), keyword()}
 
@@ -31,15 +31,15 @@ defmodule Circuits.SPI do
     * Mode 1 (CPOL=0, CPHA=1) - Clock idle low/sample trailing edge
     * Mode 2 (CPOL=1, CPHA=0) - Clock idle high/sample leading edge
     * Mode 3 (CPOL=1, CPHA=1) - Clock idle high/sample trailing edge
-  * `bits_per_word` - Set the bits per word on the bus. Defaults to 8 bit words.
+  * `bits_per_word` - Set the bits per word on the bus. Defaults to 8-bit words.
   * `speed_hz` - Set the bus speed. Supported speeds are device-specific. The
     default speed is 1 Mbps (1000000).
   * `delay_us` - Set the delay between transactions (10)
   * `lsb_first` - Set to `true` to send the least significant bit first rather
-    than the most significant one. (false)
-    The error message `unsupported mode bits 8` might be printed due to
-    hardware that doesn't support the LSB-first mode, which can be ignored
-    since Circuits.SPI handles it automatically.
+    than the most significant one. Defaults to `false`.
+    Hardware that doesn't support LSB-first mode might cause the error message
+    `unsupported mode bits 8` to be printed. This message can be ignored since
+    Circuits.SPI handles bit reversal automatically.
   """
   @type spi_option() ::
           {:mode, 0..3}
@@ -64,19 +64,19 @@ defmodule Circuits.SPI do
         }
 
   @doc """
-  Open a SPI bus device
+  Open an SPI bus device
 
   On success, `open/2` returns a reference that may be passed to
-  with `transfer/2`. The device will be closed automatically when
+  `transfer/2`. The device will be closed automatically when
   the reference goes out of scope.
 
-  SPI is not a standardized interface so appropriate options will
-  different from device-to-device. The defaults use here work on
+  SPI is not a standardized interface, so appropriate options will
+  differ from device to device. The defaults used here work on
   many devices.
 
   Parameters:
   * `bus_name` is the name of the bus (e.g., "spidev0.0"). See `bus_names/0`
-  * `opts` is a keyword list to configure the bus
+  * `options` is a keyword list to configure the bus
   """
   @spec open(binary(), [spi_option()]) :: {:ok, Bus.t()} | {:error, term()}
   def open(bus_name, options \\ []) when is_binary(bus_name) do
@@ -87,8 +87,8 @@ defmodule Circuits.SPI do
   @doc """
   Return the configuration for this SPI bus
 
-  The configuration could be different that what was given to `open/2` if
-  the device had to change it for it to work.
+  The configuration could differ from what was given to `open/2` if
+  the device had to adjust it to work.
   """
   @spec config(Bus.t()) :: {:ok, spi_option_map()} | {:error, term()}
   def config(spi_bus) do
@@ -102,12 +102,12 @@ defmodule Circuits.SPI do
   will be a binary of the same length as `data`.
 
   Large data buffers are segmented into max-transfer-size chunks internally.
-  This results in multiple SPI transfers and chip select may be deasserted
+  This results in multiple SPI transfers, and chip select may be deasserted
   between chunks. If you're observing the SPI bus with a logic analyzer, you
   may see a short pause between chunks.
 
-  If you have an operation that writes a number of bytes and then reads back,
-  a common pattern is to use `t:iodata/0`. This example writes 0x1, 0xff and
+  If you have an operation that writes a number of bytes and then reads data back,
+  a common pattern is to use `t:iodata/0`. This example writes 0x1 and 0xff and
   then reads 100 bytes all in one transfer.
 
   ```
@@ -132,7 +132,7 @@ defmodule Circuits.SPI do
   @doc """
   Write data
 
-  This works identically to transfer/2 except that it ignores all received data.
+  This works identically to `transfer/2` except that it ignores all received data.
   """
   @spec write(Bus.t(), iodata()) :: :ok | {:error, term()}
   def write(spi_bus, data) do
@@ -148,9 +148,9 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Read len bytes
+  Read `len` bytes
 
-  This works identically to transfer/2 except that the bits written are whatever
+  This works identically to `transfer/2` except that the bits written are whatever
   the controller chooses. The expectation is that the device on the other side
   is ignoring them anyway.
   """
@@ -176,7 +176,7 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Return a list of available SPI bus names.  If nothing is returned,
+  Return a list of available SPI bus names. If the list is empty,
   it's possible that the kernel driver for that SPI bus is not enabled or the
   kernel's device tree is not configured. On Raspbian, run `raspi-config` and
   look in the advanced options.
@@ -192,7 +192,7 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Return info about the low level SPI interface
+  Return information about the low-level SPI interface
 
   This may be helpful when debugging SPI issues.
   """
@@ -221,7 +221,7 @@ defmodule Circuits.SPI do
   Return the maximum transfer size in bytes
 
   The number of bytes that can be sent and received at a time
-  may be capped by the low level SPI interface. For example,
+  may be capped by the low-level SPI interface. For example,
   the Linux `spidev` driver allocates its transfer buffer at
   initialization based on the `bufsiz` parameter and rejects
   requests that won't fit.
