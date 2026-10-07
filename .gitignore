@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: None
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
@@ -7,11 +11,11 @@
 # The directory Mix downloads your dependencies sources to.
 /deps/
 
-# Where 3rd-party dependencies like ExDoc output generated docs.
+# Where third-party dependencies like ExDoc output generated docs.
 /doc/
 
-# Ignore .fetch files in case you like to edit your project deps locally.
-/.fetch
+# Temporary files, for example, from tests.
+/tmp/
 
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
