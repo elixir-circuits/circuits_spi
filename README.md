@@ -66,15 +66,23 @@ The final important concept with SPI is the Chip Select, `CS`, line. This is a
 common but optional wire to the device that's used by the program to tell the
 device that it's talking to it. This is useful when multiple SPI devices are
 connected to the same wires. Each device has a `CS` wire going to it and the
-program sets the wire high to the device it wants. While the `CS` wire can be
-any GPIO, most processors can automatically toggle the `CS` wire when making
-SPI transactions.
+controller asserts the line for the device it wants to communicate with.
+Chip select is typically active-low: the controller drives it low to select
+the device and high to deselect it. Check the device's data sheet for its
+requirements. While the `CS` wire can be any GPIO, most processors can
+automatically toggle it when making SPI transactions.
 
 When using `Circuits.SPI` on Linux and Nerves, `Circuits.SPI.open/2` uses the
 Linux SPI device naming convention, which includes the SPI bus number and chip
-select. For example, the name `"spidev1.0"` refers to SPI bus 1 and CS0. All transactions
-will automatically set CS0. Refer to your board or processor for SPI bus and CS
-numbering.
+select. For example, the name `"spidev1.0"` refers to SPI bus 1 and CS0.
+Transactions automatically assert CS0 and deassert it when finished. Refer to
+your board or processor for SPI bus and CS numbering.
+
+The Linux backend automatically splits messages larger than
+`Circuits.SPI.max_transfer_size(spi)` into multiple transfers. Chip select is
+deasserted between these transfers, and there may be a short pause. If your
+device requires chip select to stay asserted throughout a command, keep that
+command within the single-transfer limit.
 
 The following shows an example analog-to-digital converter (ADC) that reads
 from either a temperature sensor on CH0 (channel 0) or a potentiometer on CH1
@@ -94,21 +102,22 @@ to the ADC, along with how the data (in the form of bits) will be returned.
 See Figure 6-1 in the data sheet for the communication protocol. Sending a
 `0x68` first reads the temperature, and sending a `0x78` reads the
 potentiometer. Since the data sheet shows bits, `0x68` corresponds to
-`01101000b`. The leftmost bit is the "Start" bit. The second bit is SGL/DIFF,
-the third bit is ODD/SIGN, and the fourth bit is MSBF. From Table 5-1, if
-SGL/DIFF==1, ODD/SIGN==0, and MSBF==1, then that specifies channel 0, which is
-connected to the thermometer.
+`01101000b`. The leftmost bit is a leading zero, which the ADC ignores.
+The second bit is the "Start" bit, the third bit is SGL/DIFF, the fourth bit
+is ODD/SIGN, and the fifth bit is MSBF. From Table 5-1, if SGL/DIFF==1,
+ODD/SIGN==0, and MSBF==1, then that specifies channel 0, which is connected
+to the temperature sensor.
 
 ```elixir
 # Make sure that you've enabled or loaded the SPI driver or this will
 # fail.
-iex> {:ok, ref} = Circuits.SPI.open("spidev0.0")
-{:ok, #Reference<...>}
+iex> {:ok, spi} = Circuits.SPI.open("spidev0.0")
+{:ok, %Circuits.SPI.SPIDev{ref: #Reference<...>}}
 
 # Read the potentiometer
 
 # Use binary pattern matching to pull out the ADC counts (low 10 bits)
-iex> {:ok, <<_::size(6), counts::size(10)>>} = Circuits.SPI.transfer(ref, <<0x78, 0x00>>)
+iex> {:ok, <<_::size(6), counts::size(10)>>} = Circuits.SPI.transfer(spi, <<0x78, 0x00>>)
 {:ok, <<1, 197>>}
 
 iex> counts
@@ -117,6 +126,9 @@ iex> counts
 # Convert counts to volts (1023 = 3.3 V)
 iex> volts = counts / 1023 * 3.3
 1.461290322580645
+
+iex> Circuits.SPI.close(spi)
+:ok
 ```
 
 As shown above, you'll find out that Elixir's binary pattern matching is
@@ -182,11 +194,80 @@ you're not using Nerves.
 
 ### Can I develop code that uses Circuits.SPI on my laptop?
 
-You have a few options:
+Yes. You can use simulated devices with
+[CircuitsSim](https://github.com/elixir-circuits/circuits_sim) or create a
+custom backend to mock interactions with the Circuits.SPI API.
 
-1. Use the CircuitsSim backend
-2. Create a custom backend and use it to mock interactions with the Circuits.SPI
-   API
+### How do I configure a backend?
+
+Set `:default_backend` in your project's `config/config.exs`. For example, to
+explicitly select the Linux backend:
+
+```elixir
+import Config
+
+config :circuits_spi, default_backend: Circuits.SPI.SPIDev
+```
+
+You can also supply a `{backend_module, default_options}` tuple. When you call
+`bus_names/0`, these defaults are passed to the backend's `bus_names/1`
+callback. They are also merged with the options passed to `open/2`, with
+options passed to `open/2` taking precedence:
+
+```elixir
+config :circuits_spi,
+  default_backend: {Circuits.SPI.SPIDev, speed_hz: 500_000}
+```
+
+Configure the backend before compiling dependencies. Selecting an alternative
+backend this way disables compilation of the Linux NIF. To implement your own
+backend, implement the `Circuits.SPI.Backend` behaviour and the
+`Circuits.SPI.Bus` protocol for the bus value returned by `open/2`.
+
+### How do I use CircuitsSim?
+
+Add CircuitsSim to your project's dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:circuits_spi, "~> 2.0"},
+    {:circuits_sim, "~> 0.1"}
+  ]
+end
+```
+
+Then select its SPI backend and configure a simulated device in
+`config/config.exs`:
+
+```elixir
+import Config
+
+config :circuits_spi, default_backend: CircuitsSim.SPI.Backend
+
+config :circuits_sim,
+  config: [
+    {CircuitsSim.Device.TM1620, bus_name: "spidev0.0", render: :binary_clock}
+  ]
+```
+
+Run `mix deps.get` and start your project with `iex -S mix`. The simulated
+TM1620 LED driver is now available through the usual SPI API:
+
+```elixir
+iex> Circuits.SPI.bus_names()
+["spidev0.0"]
+iex> {:ok, spi} = Circuits.SPI.open("spidev0.0", lsb_first: true)
+iex> Circuits.SPI.transfer(spi, <<0x02>>)
+{:ok, <<0>>}
+iex> Circuits.SPI.close(spi)
+:ok
+```
+
+The TM1620 is write-only, so its simulated response contains zeros. It does
+not simulate the ADC in the earlier example. See the
+[CircuitsSim documentation](https://circuits-sim.hexdocs.pm/) for supported
+devices and their configuration options.
 
 We hope to have support for USB adapters that have SPI interfaces in the future.
 

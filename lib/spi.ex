@@ -9,6 +9,27 @@ defmodule Circuits.SPI do
   @moduledoc """
   This module enables Elixir programs to interact with hardware that's connected
   via an SPI bus.
+
+  ## Backends
+
+  The `:default_backend` application configuration selects the backend used by
+  `open/2`, `bus_names/0`, and `info/0`. Set it in `config/config.exs` before
+  compiling dependencies. For example, to use simulated SPI devices:
+
+  ```elixir
+  import Config
+
+  config :circuits_spi, default_backend: CircuitsSim.SPI.Backend
+  ```
+
+  This requires the `:circuits_sim` dependency and configured simulated devices.
+  See the [README's CircuitsSim example](readme.html#how-do-i-use-circuitssim)
+  for a complete setup.
+
+  The value may be a backend module or a `{backend_module, default_options}`
+  tuple. Options passed to `open/2` override the backend's default options.
+  Alternative backends implement `Circuits.SPI.Backend` and return bus values
+  that implement the `Circuits.SPI.Bus` protocol.
   """
 
   alias Circuits.SPI.Bus
@@ -66,9 +87,13 @@ defmodule Circuits.SPI do
   @doc """
   Open an SPI bus device
 
-  On success, `open/2` returns a reference that may be passed to
-  `transfer/2`. The device will be closed automatically when
-  the reference goes out of scope.
+  On success, `open/2` returns `{:ok, bus}`, where `bus` is a backend-specific
+  value that implements `Circuits.SPI.Bus`. Pass it to `transfer/2` and the
+  other bus operations.
+
+  The Linux backend releases the device when the bus's underlying resource is
+  garbage collected. Call `close/1` to release it promptly rather than waiting
+  for garbage collection.
 
   SPI is not a standardized interface, so appropriate options will
   differ from device to device. The defaults used here work on
@@ -98,13 +123,16 @@ defmodule Circuits.SPI do
   @doc """
   Transfer data
 
-  Since each SPI transfer sends and receives simultaneously, the return value
-  will be a binary of the same length as `data`.
+  Since each SPI transfer sends and receives simultaneously, success returns
+  `{:ok, received}`, where `received` is a binary with the same byte count as
+  `data`. For nested iodata, this is `IO.iodata_length(data)`.
 
-  Large data buffers are segmented into max-transfer-size chunks internally.
-  This results in multiple SPI transfers, and chip select may be deasserted
-  between chunks. If you're observing the SPI bus with a logic analyzer, you
-  may see a short pause between chunks.
+  The Linux backend automatically splits large data buffers into chunks no
+  larger than `max_transfer_size/1`. Manual splitting is not required. Each
+  chunk is a separate SPI transfer: chip select is deasserted between chunks,
+  and there may be a short pause. If your device requires chip select to remain
+  asserted throughout a command, keep the command within this limit. Other
+  backends may have different transfer limits and segmentation behavior.
 
   If you have an operation that writes a number of bytes and then reads data back,
   a common pattern is to use `t:iodata/0`. This example writes 0x1 and 0xff and
@@ -168,7 +196,7 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Release any resources associated with the given file descriptor
+  Release any resources associated with the given SPI bus
   """
   @spec close(Bus.t()) :: :ok
   def close(spi_bus) do
@@ -218,16 +246,19 @@ defmodule Circuits.SPI do
   end
 
   @doc """
-  Return the maximum transfer size in bytes
+  Return the maximum size of a single low-level transfer in bytes
 
-  The number of bytes that can be sent and received at a time
-  may be capped by the low-level SPI interface. For example,
-  the Linux `spidev` driver allocates its transfer buffer at
-  initialization based on the `bufsiz` parameter and rejects
-  requests that won't fit.
+  Pass a bus returned by `open/2` to query its backend's limit. For example,
+  the Linux `spidev` driver limits each transfer based on its `bufsiz` parameter.
 
-  If you're sending large amounts of data over SPI, use this
-  function to determine how to split up large messages.
+  This is not necessarily the maximum message size accepted by the backend.
+  The Linux backend automatically splits larger `transfer/2`, `write/2`, and
+  `read/2` operations into multiple transfers. Chip select is deasserted between
+  them, so use this limit to determine whether a command fits in one transfer.
+  See `transfer/2` for details.
+
+  Calling this function without a bus, or with `nil`, returns `0`. It does not
+  query the configured backend.
   """
   @spec max_transfer_size(Bus.t() | nil) :: non_neg_integer()
   def max_transfer_size(bus \\ nil) do
