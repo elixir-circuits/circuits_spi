@@ -45,22 +45,7 @@ defmodule Circuits.SPI do
   @typedoc """
   SPI bus options
 
-  Options:
-
-  * `mode` - Set the clock polarity and phase to use:
-    * Mode 0 (CPOL=0, CPHA=0) - Clock idle low/sample leading edge (default)
-    * Mode 1 (CPOL=0, CPHA=1) - Clock idle low/sample trailing edge
-    * Mode 2 (CPOL=1, CPHA=0) - Clock idle high/sample leading edge
-    * Mode 3 (CPOL=1, CPHA=1) - Clock idle high/sample trailing edge
-  * `bits_per_word` - Set the bits per word on the bus. Defaults to 8-bit words.
-  * `speed_hz` - Set the bus speed. Supported speeds are device-specific. The
-    default speed is 1 Mbps (1000000).
-  * `delay_us` - Set the delay between transactions (10)
-  * `lsb_first` - Set to `true` to send the least significant bit first rather
-    than the most significant one. Defaults to `false`.
-    Hardware that doesn't support LSB-first mode might cause the error message
-    `unsupported mode bits 8` to be printed. This message can be ignored since
-    Circuits.SPI handles bit reversal automatically.
+  See `open/2` for option descriptions and defaults.
   """
   @type spi_option() ::
           {:mode, 0..3}
@@ -95,13 +80,42 @@ defmodule Circuits.SPI do
   garbage collected. Call `close/1` to release it promptly rather than waiting
   for garbage collection.
 
-  SPI is not a standardized interface, so appropriate options will
-  differ from device to device. The defaults used here work on
-  many devices.
+  ## Parameters
 
-  Parameters:
   * `bus_name` is the name of the bus (e.g., "spidev0.0"). See `bus_names/0`
   * `options` is a keyword list to configure the bus
+
+  ## Options
+
+  The Linux backend supports the following options and defaults. Supported
+  settings depend on the controller and peripheral. Other backends may have
+  different defaults or support additional options.
+
+  * `:mode` - Set the clock polarity and phase. Defaults to `0`:
+    * Mode 0 (CPOL=0, CPHA=0) - Clock idle low; sample on the leading edge
+    * Mode 1 (CPOL=0, CPHA=1) - Clock idle low; sample on the trailing edge
+    * Mode 2 (CPOL=1, CPHA=0) - Clock idle high; sample on the leading edge
+    * Mode 3 (CPOL=1, CPHA=1) - Clock idle high; sample on the trailing edge
+  * `:bits_per_word` - Set the number of bits per word, from `8` to `16`.
+    Defaults to `8`.
+  * `:speed_hz` - Set the clock frequency in Hz. Must be a positive integer.
+    Defaults to `1_000_000` (1 MHz). Supported speeds are device-specific.
+  * `:delay_us` - Set the delay after a transfer, before chip select is
+    deasserted, in microseconds. Must be a non-negative integer. Defaults to `10`.
+  * `:lsb_first` - Set to `true` to send the least significant bit first rather
+    than the most significant bit. Defaults to `false`. If the hardware does
+    not support LSB-first mode, Circuits.SPI reverses the bits in software.
+    The hardware may print `unsupported mode bits 8` in this case; this message
+    can be ignored.
+
+  Options passed here override the configured backend's default options.
+  Use `config/1` to check the configuration actually selected by the backend.
+
+  ## Examples
+
+  ```elixir
+  {:ok, spi} = Circuits.SPI.open("spidev0.0", mode: 0, speed_hz: 500_000)
+  ```
   """
   @spec open(binary(), [spi_option()]) :: {:ok, Bus.t()} | {:error, term()}
   def open(bus_name, options \\ []) when is_binary(bus_name) do
