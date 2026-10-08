@@ -48,7 +48,7 @@ defmodule Circuits.SPI.SPIDev do
     mode = Keyword.get(options, :mode, 0)
     bits_per_word = Keyword.get(options, :bits_per_word, 8)
     speed_hz = Keyword.get(options, :speed_hz, 1_000_000)
-    delay_us = Keyword.get(options, :delay_us, 10)
+    delay_us = Keyword.get(options, :delay_us, 0)
     lsb_first = Keyword.get(options, :lsb_first, false)
 
     with {:ok, ref} <-

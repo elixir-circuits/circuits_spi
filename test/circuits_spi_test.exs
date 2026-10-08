@@ -28,10 +28,19 @@ defmodule CircuitsSPITest do
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.mode == 0
     assert config.bits_per_word == 8
-    assert config.delay_us == 10
+    assert config.delay_us == 0
     assert config.speed_hz == 1_000_000
     assert config.lsb_first == false
     assert config.sw_lsb_first == false
+  end
+
+  test "delay_us can override the default" do
+    {:ok, spi} = Circuits.SPI.open("my_spidev", delay_us: 10)
+
+    {:ok, config} = Circuits.SPI.config(spi)
+    assert config.delay_us == 10
+
+    Circuits.SPI.close(spi)
   end
 
   test "transfers loop back using stub" do

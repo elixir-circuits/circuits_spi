@@ -101,7 +101,7 @@ defmodule Circuits.SPI do
   * `:speed_hz` - Set the clock frequency in Hz. Must be a positive integer.
     Defaults to `1_000_000` (1 MHz). Supported speeds are device-specific.
   * `:delay_us` - Set the delay after a transfer, before chip select is
-    deasserted, in microseconds. Must be a non-negative integer. Defaults to `10`.
+    deasserted, in microseconds. Must be a non-negative integer. Defaults to `0`.
   * `:lsb_first` - Set to `true` to send the least significant bit first rather
     than the most significant bit. Defaults to `false`. If the hardware does
     not support LSB-first mode, Circuits.SPI reverses the bits in software.
