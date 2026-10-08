@@ -5,6 +5,20 @@
 
 # Changelog
 
+## v2.2.0 - 2026-10-07
+
+* Backwards incompatible change
+  * Change the Linux backend's default `:delay_us` from 10 to 0 microseconds.
+    Pass `delay_us: 10` to `Circuits.SPI.open/2` to preserve the previous
+    post-transfer delay before chip select is deasserted. This aligns the API
+    with what most people assume to be the case, and those users not setting
+    the delay likely never needed a 10 us delay in practice.
+
+* Changes
+  * Don't apply `:delay_us` on intermediate transfers when writing more than the
+    low level max transfer size. The final transfer segment applies the delay.
+  * Fix C compilation issue when passing `MAKEFLAGS=j<n>` when n > 1.
+
 ## v2.1.0 - 2026-07-17
 
 * New features

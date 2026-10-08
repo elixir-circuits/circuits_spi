@@ -5,7 +5,7 @@ defmodule Circuits.SPI.MixProject do
   use Mix.Project
 
   @app :circuits_spi
-  @version "2.1.0"
+  @version "2.2.0"
   @description "Use SPI in Elixir"
   @source_url "https://github.com/elixir-circuits/#{@app}"
 
