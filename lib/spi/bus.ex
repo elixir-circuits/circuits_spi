@@ -21,8 +21,12 @@ defprotocol Circuits.SPI.Bus do
   @doc """
   Transfer data
 
-  Since each SPI transfer sends and receives simultaneously, the return value
-  will be a binary of the same length as `data`.
+  Since each SPI transfer sends and receives simultaneously, success returns
+  `{:ok, received}`, where `received` is a binary with the same byte count as
+  `data`. For nested iodata, this is `IO.iodata_length(data)`.
+
+  Transfer limits and segmentation behavior are backend-specific. See
+  `Circuits.SPI.transfer/2` for the Linux backend's behavior.
   """
   @spec transfer(t(), iodata()) :: {:ok, binary()} | {:error, term()}
   def transfer(bus, data)
@@ -57,16 +61,16 @@ defprotocol Circuits.SPI.Bus do
   def close(bus)
 
   @doc """
-  Return the maximum transfer size in bytes
+  Return the maximum size of a single low-level transfer in bytes
 
-  The number of bytes that can be sent and received at a time
-  may be capped by the low-level SPI interface. For example,
-  the Linux `spidev` driver allocates its transfer buffer at
-  initialization based on the `bufsiz` parameter and rejects
-  requests that won't fit.
+  This is not necessarily the maximum message size accepted by the backend.
+  For example, the Linux backend uses the `spidev` driver's `bufsiz` parameter
+  as this limit and automatically splits larger messages into multiple
+  transfers. Chip select is deasserted between them.
 
-  If you're sending large amounts of data over SPI, use this
-  function to determine how to split up large messages.
+  Use this limit to determine whether a command fits in one transfer rather
+  than assuming that manual splitting is required. See
+  `Circuits.SPI.transfer/2` for details.
   """
   @spec max_transfer_size(t()) :: non_neg_integer()
   def max_transfer_size(bus)
