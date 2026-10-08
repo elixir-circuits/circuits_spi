@@ -119,9 +119,17 @@ defmodule Circuits.SPI do
   """
   @spec open(binary(), [spi_option()]) :: {:ok, Bus.t()} | {:error, term()}
   def open(bus_name, options \\ []) when is_binary(bus_name) do
-    {module, default_options} = default_backend()
-    module.open(bus_name, Keyword.merge(default_options, options))
+    try_open(backends(), bus_name, options, :not_found)
   end
+
+  defp try_open([{module, default_options} | rest], bus_name, options, _last_reason) do
+    case module.open(bus_name, Keyword.merge(default_options, options)) do
+      {:ok, _} = v -> v
+      {:error, reason} -> try_open(rest, bus_name, options, reason)
+    end
+  end
+
+  defp try_open([], _bus_name, _options, last_reason), do: {:error, last_reason}
 
   @doc """
   Return the configuration for this SPI bus
@@ -229,20 +237,44 @@ defmodule Circuits.SPI do
   """
   @spec bus_names() :: [binary()]
   def bus_names() do
-    {m, o} = default_backend()
-    m.bus_names(o)
+    backends() |> Enum.flat_map(fn {m, o} -> m.bus_names(o) end)
   end
 
   @doc """
   Return information about the low-level SPI interface
 
-  This may be helpful when debugging SPI issues.
-  """
-  @spec info(backend() | nil) :: map()
-  def info(backend \\ nil)
+  The result is a list of tuples where the first element is the
+  expanded backend identifier that includes any options. The second
+  element is the return value from the backend's `info/1` callback.
+  The order returned matches the search order when opening a bus.
+  If order doesn't matter, running `Map.new/1` on the result may be helpful.
+  Example:
 
-  def info(nil), do: info(default_backend())
-  def info({backend, _options}), do: backend.info()
+      iex> Circuits.SPI.backend_info()
+      [
+        {{Circuits.SPI.Backend.Linux, []},
+         %{
+           description: "Linux spidev driver",
+           kernel_version: "5.4.51"
+         }}
+      ]
+  """
+  @spec backend_info([backend()] | backend()) :: [{backend(), map()}]
+  def backend_info(backends \\ backends()) do
+    backends
+    |> List.wrap()
+    |> Enum.map(&normalize_backend/1)
+    |> Enum.map(fn {m, o} = b -> {b, m.info(o)} end)
+  end
+
+  defp backends() do
+    Application.get_env(:circuits_spi, :backends, [])
+    |> List.wrap()
+    |> Enum.map(&normalize_backend/1)
+  end
+
+  defp normalize_backend(m) when is_atom(m), do: {m, []}
+  defp normalize_backend({m, o} = value) when is_atom(m) and is_list(o), do: value
 
   # The two functions here are for Dialyzer
   defp result1!({:ok, result}), do: result
@@ -250,14 +282,6 @@ defmodule Circuits.SPI do
 
   defp result2!(:ok), do: :ok
   defp result2!({:error, reason}), do: raise("SPI failure: " <> to_string(reason))
-
-  defp default_backend() do
-    case Application.get_env(:circuits_spi, :default_backend) do
-      nil -> {Circuits.SPI.NilBackend, []}
-      m when is_atom(m) -> {m, []}
-      {m, o} = value when is_atom(m) and is_list(o) -> value
-    end
-  end
 
   @doc """
   Return the maximum size of a single low-level transfer in bytes

@@ -17,8 +17,8 @@
 `Circuits.SPI` v2.0 is an almost backward-compatible update to `Circuits.SPI`
 v1.x. Here's what's new:
 
-* Neither Linux nor Nerves is required anymore. In fact, the NIF supporting them
-  won't be compiled if you don't want it.
+* Linux or Nerves are no longer required. In fact, the Elixir and C code
+  supporting them won't be compiled if you don't want it.
 * Develop using simulated SPI devices with
   [CircuitsSim](https://github.com/elixir-circuits/circuits_sim)
 * Use USB-to-SPI adapters for development on your laptop (coming soon)
@@ -135,6 +135,32 @@ As shown above, you'll find out that Elixir's binary pattern matching is
 extremely convenient when working with hardware. More information can be
 found in the [Kernel.SpecialForms documentation](https://elixir.hexdocs.pm/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)
 and by running `h <<>>` at the IEx prompt.
+
+## Getting started on AtomVM
+
+AtomVM requires SPI pin and peripheral configuration when opening a bus.
+Configure the built-in AtomVM backend with a map of names to bus and device
+settings:
+
+```elixir
+config :circuits_spi,
+  backends: [
+    {Circuits.SPI.AtomVMBackend,
+     buses: %{
+       "display" => [
+         bus_config: [sclk: 18, mosi: 23, miso: 19, peripheral: "spi2"],
+         device_config: [cs: 5]
+       ]
+     }}
+  ]
+```
+
+The `"display"` name is arbitrarily assigned by the application. The pin
+numbers and peripheral names depend on the AtomVM platform and board. After
+configuration, use `"display"` like any other Circuits.SPI bus name.
+The standard `:mode` and `:speed_hz` options to `Circuits.SPI.open/2` override
+the configured device defaults. AtomVM currently supports 8-bit, MSB-first
+transfers through this backend.
 
 ## FAQ
 
