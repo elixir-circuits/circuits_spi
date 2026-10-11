@@ -7,6 +7,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/circuits_spi.svg "Hex version")](https://hex.pm/packages/circuits_spi)
 [![API docs](https://img.shields.io/hexpm/v/circuits_spi.svg?label=hexdocs "API docs")](https://circuits-spi.hexdocs.pm/Circuits.SPI.html)
+[![Nerves compatibility](https://compatibility.nerves-project.org/badge/circuits_spi.svg)](https://compatibility.nerves-project.org/packages/circuits_spi)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/elixir-circuits/circuits_spi/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/elixir-circuits/circuits_spi/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-circuits/circuits_spi)](https://api.reuse.software/info/github.com/elixir-circuits/circuits_spi)
 
