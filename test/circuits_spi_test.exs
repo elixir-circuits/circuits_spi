@@ -10,10 +10,8 @@ defmodule CircuitsSPITest do
   @test_data :binary.list_to_bin(for i <- 0..255, do: i)
 
   test "info/0" do
-    info = Circuits.SPI.info()
-
-    assert is_map(info)
-    assert info.backend == Circuits.SPI.SPIDev
+    info = Circuits.SPI.backend_info()
+    assert {{Circuits.SPI.LoopBackend, []}, %{description: "Loopback SPI backend"}} in info
   end
 
   test "max buffer size returns a non-negative integer" do
@@ -23,7 +21,7 @@ defmodule CircuitsSPITest do
   end
 
   test "config comes back with documented defaults" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
+    {:ok, spi} = Circuits.SPI.open("loop")
 
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.mode == 0
@@ -35,7 +33,7 @@ defmodule CircuitsSPITest do
   end
 
   test "delay_us can override the default" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev", delay_us: 10)
+    {:ok, spi} = Circuits.SPI.open("loop", delay_us: 10)
 
     {:ok, config} = Circuits.SPI.config(spi)
     assert config.delay_us == 10
@@ -44,18 +42,7 @@ defmodule CircuitsSPITest do
   end
 
   test "transfers loop back using stub" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
-
-    {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
-
-    assert result == @test_data
-  end
-
-  test "transfers loop back using stub and lsb_first" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
-    {:ok, config} = Circuits.SPI.config(spi)
-    assert config.lsb_first == true
-    assert config.sw_lsb_first == true
+    {:ok, spi} = Circuits.SPI.open("loop")
 
     {:ok, result} = Circuits.SPI.transfer(spi, @test_data)
 
@@ -63,7 +50,7 @@ defmodule CircuitsSPITest do
   end
 
   test "iodata transfers work" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev", lsb_first: true)
+    {:ok, spi} = Circuits.SPI.open("loop", lsb_first: true)
 
     message = ["Hello", [1, 2, 3, @test_data]]
     expected = IO.iodata_to_binary(message)
@@ -74,7 +61,7 @@ defmodule CircuitsSPITest do
   end
 
   test "reads return the right number of bytes" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
+    {:ok, spi} = Circuits.SPI.open("loop")
 
     {:ok, result} = Circuits.SPI.read(spi, 100)
 
@@ -82,7 +69,7 @@ defmodule CircuitsSPITest do
   end
 
   test "write doesn't crash" do
-    {:ok, spi} = Circuits.SPI.open("my_spidev")
+    {:ok, spi} = Circuits.SPI.open("loop")
 
     :ok = Circuits.SPI.write(spi, <<1, 2, 3, 4>>)
   end

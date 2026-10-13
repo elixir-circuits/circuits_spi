@@ -14,7 +14,6 @@
 # Variables to override:
 #
 # MIX_APP_PATH  path to the build directory
-# CIRCUITS_SPI_SPIDEV Backend to build - `"normal"`, `"test"`, or `"disabled"` will build a NIF
 #
 # CC            C compiler
 # CROSSCOMPILE	crosscompiler prefix, if any
@@ -30,44 +29,31 @@ BUILD  = $(MIX_APP_PATH)/obj
 
 NIF = $(PREFIX)/spi_nif.so
 
+SRC = c_src/spi_nif.c
 CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter -pedantic
 
 # Check that we're on a supported build platform
 ifeq ($(CROSSCOMPILE),)
-# Not crosscompiling, so check that we're on Linux for whether to compile the NIF.
+# Not cross-compiling, so check that we're on Linux for whether to compile the NIF.
 ifeq ($(shell uname -s),Linux)
 CFLAGS += -fPIC
 LDFLAGS += -fPIC -shared
 else
 LDFLAGS += -undefined dynamic_lookup -dynamiclib
-ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
-$(error Circuits.SPI Linux SPIDev backend is not supported on non-Linux platforms. Review circuits_spi backend configuration or report an issue if improperly detected.)
-endif
 endif
 else
-# Crosscompiled build
+# Cross-compiled build
 LDFLAGS += -fPIC -shared
 CFLAGS += -fPIC
 endif
 
-ifeq ($(CIRCUITS_SPI_SPIDEV),normal)
 # Enable real SPI calls. This is the default and works with Nerves
-else
-ifeq ($(CIRCUITS_SPI_SPIDEV),test)
-# Stub out ioctls and send back test data
-HAL_SRC = c_src/hal_stub.c
-else
-# Don't build NIF
-NIF =
-endif
-endif
+SRC += c_src/hal_spidev.c
 
 # Set Erlang-specific compile and linker flags
 ERL_CFLAGS ?= -I"$(ERL_EI_INCLUDE_DIR)"
 ERL_LDFLAGS ?= -L"$(ERL_EI_LIBDIR)" -lei
 
-HAL_SRC ?= c_src/hal_spidev.c
-SRC = $(HAL_SRC) c_src/spi_nif.c
 HEADERS =$(wildcard c_src/*.h)
 OBJ = $(SRC:c_src/%.c=$(BUILD)/%.o)
 

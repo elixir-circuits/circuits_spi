@@ -48,5 +48,5 @@ defmodule Circuits.SPI.Backend do
   @doc """
   Return information about this backend
   """
-  @callback info() :: map()
+  @callback info([SPI.spi_option()]) :: map()
 end
