@@ -26,6 +26,3 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 circuits_spi-*.tar
 
-# Ignore C object files and executables
-/priv
-*.o
