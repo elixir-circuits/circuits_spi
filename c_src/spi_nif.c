@@ -11,11 +11,15 @@ struct SpiNifPriv {
     ErlNifResourceType *spi_nif_res_type;
 };
 
-// SPI NIF Resource.
+// SPI NIF Resource
 struct SpiNifRes {
     int fd;
     struct SpiConfig config;
 };
+
+// IMPORTANT: Bump the version number in the type whenever changing SpiNifRes or
+// SpiConfig. This ensures that hot code updates fail on ABI changes.
+#define SPI_NIF_RES_TYPE "spi_nif_res_v1"
 
 static ERL_NIF_TERM atom_ok;
 static ERL_NIF_TERM atom_error;
@@ -39,24 +43,23 @@ static void spi_dtor(ErlNifEnv *env, void *obj)
     }
 }
 
-static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
+static int spi_init(ErlNifEnv *env, void **priv_data, ErlNifResourceFlags flags)
 {
 #ifdef DEBUG
 #ifdef LOG_PATH
     log_location = fopen(LOG_PATH, "w");
 #endif
 #endif
-    debug("spi_load");
-
     struct SpiNifPriv *priv = enif_alloc(sizeof(struct SpiNifPriv));
     if (!priv) {
         error("Can't allocate spi priv");
         return 1;
     }
 
-    priv->spi_nif_res_type = enif_open_resource_type(env, NULL, "spi_nif_res_type", spi_dtor, ERL_NIF_RT_CREATE, NULL);
+    priv->spi_nif_res_type = enif_open_resource_type(env, NULL, SPI_NIF_RES_TYPE, spi_dtor, flags, NULL);
     if (priv->spi_nif_res_type == NULL) {
-        error("open SPI NIF resource type failed");
+        error("Error opening SPI NIF resource type. If upgrading, this indicates an ABI mismatch.");
+        enif_free(priv);
         return 1;
     }
 
@@ -73,6 +76,18 @@ static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 
     *priv_data = priv;
     return 0;
+}
+
+static int spi_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
+{
+    debug("spi_load");
+    return spi_init(env, priv_data, ERL_NIF_RT_CREATE);
+}
+
+static int spi_upgrade(ErlNifEnv *env, void **priv_data, void **old_priv_data, ERL_NIF_TERM info)
+{
+    debug("spi_upgrade");
+    return spi_init(env, priv_data, ERL_NIF_RT_TAKEOVER);
 }
 
 static void spi_unload(ErlNifEnv *env, void *priv_data)
@@ -327,4 +342,4 @@ static ErlNifFunc nif_funcs[] =
     {"max_transfer_size", 0, spi_max_transfer_size, ERL_NIF_DIRTY_JOB_IO_BOUND}
 };
 
-ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, NULL, spi_unload)
+ERL_NIF_INIT(Elixir.Circuits.SPI.Nif, nif_funcs, spi_load, NULL, spi_upgrade, spi_unload)
