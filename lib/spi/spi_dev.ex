@@ -21,23 +21,31 @@ defmodule Circuits.SPI.SPIDev do
 
   No options are supported.
   """
-  case System.get_env("CIRCUITS_SPI_SPIDEV") do
-    "test" ->
-      @impl Backend
-      def bus_names(_options), do: ["spidev0.0"]
+  @impl Backend
+  def bus_names(_options) do
+    case nif_build() do
+      :test ->
+        ["spidev0.0"]
 
-    "normal" ->
-      @impl Backend
-      def bus_names(_options) do
+      :normal ->
         Path.wildcard("/dev/spidev*")
         |> Enum.map(fn p -> String.replace_prefix(p, "/dev/", "") end)
-      end
 
-    _ ->
-      @impl Backend
-      def bus_names(_options) do
+      :disabled ->
         []
-      end
+    end
+  end
+
+  # The NIF is built in "normal", "test" or "disabled" mode depending on the
+  # backend configuration (see `mix.exs`). Ask the build itself rather than
+  # reading CIRCUITS_SPI_SPIDEV at compile time so that the compiled Elixir
+  # code doesn't depend on an environment variable.
+  defp nif_build() do
+    cond do
+      not File.exists?(Path.join(:code.priv_dir(:circuits_spi), "spi_nif.so")) -> :disabled
+      Map.get(Nif.info(), :name) == :stub -> :test
+      true -> :normal
+    end
   end
 
   @doc """
